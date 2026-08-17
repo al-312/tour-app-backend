@@ -15,6 +15,7 @@ import { AppConfigService } from '@/core/config/app-config.service';
     RolesModule,
     AppConfigModule,
     JwtModule.registerAsync({
+      global: true,
       imports: [AppConfigModule],
       inject: [AppConfigService],
       useFactory: (config: AppConfigService): JwtModuleOptions => ({
