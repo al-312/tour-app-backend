@@ -16,6 +16,25 @@ export interface ResponseFormat<T> {
   data: T;
 }
 
+const extractMessageFromData = (data: unknown): string => {
+  const msg = (data as Record<string, unknown> | null)?.['message'];
+  return typeof msg === 'string' ? msg : 'Request successful';
+};
+
+const isWrappedPayload = (obj: Record<string, unknown>): boolean => {
+  return 'message' in obj && 'data' in obj && Object.keys(obj).length === 2;
+};
+
+const extractInnerPayload = (data: unknown): unknown => {
+  if (data && typeof data === 'object') {
+    const obj = data as Record<string, unknown>;
+    if (isWrappedPayload(obj)) {
+      return obj['data'];
+    }
+  }
+  return data;
+};
+
 @Injectable()
 export class TransformInterceptor<T> implements NestInterceptor<
   T,
@@ -33,20 +52,9 @@ export class TransformInterceptor<T> implements NestInterceptor<
 
     return next.handle().pipe(
       map((data: unknown) => {
-        let msg = 'Request successful';
-        let payload = data;
+        const message = extractMessageFromData(data);
+        const payload = extractInnerPayload(data);
 
-        if (data && typeof data === 'object') {
-          const dataObj = data as Record<string, unknown>;
-          if ('message' in dataObj && typeof dataObj['message'] === 'string') {
-            msg = dataObj['message'];
-            if ('data' in dataObj && Object.keys(dataObj).length === 2) {
-              payload = dataObj['data'];
-            }
-          }
-        }
-
-        // Log response status
         this.logger.log(
           `[${request.method}] ${request.url} - Status: ${response.statusCode.toString()}`,
         );
@@ -54,7 +62,7 @@ export class TransformInterceptor<T> implements NestInterceptor<
         return {
           statusCode: response.statusCode,
           success: true,
-          message: msg,
+          message,
           data: payload ?? null,
         };
       }),
