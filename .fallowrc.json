@@ -29,6 +29,11 @@
     "minOccurrences": 3,
     "near": true
   },
+  "health": {
+    "maxCyclomatic": 30,
+    "maxCognitive": 30,
+    "maxCrap": 500
+  },
   "includeEntryExports": false,
   "rules": {
     "unused-files": "error",
