@@ -15,6 +15,7 @@ describe('AppModule (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api/v1');
     await app.init();
   });
 
@@ -22,9 +23,9 @@ describe('AppModule (e2e)', () => {
     expect(app).toBeDefined();
   });
 
-  it('/ (GET) - Welcome route', async () => {
+  it('/api/v1 (GET) - Welcome route', async () => {
     const response = (await request(app.getHttpServer() as unknown as App)
-      .get('/')
+      .get('/api/v1')
       .expect(200)) as unknown as { body: Record<string, unknown> };
 
     expect(response.body).toHaveProperty('success', true);

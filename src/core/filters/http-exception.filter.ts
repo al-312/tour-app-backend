@@ -10,11 +10,65 @@ import {
 
 import { AppConfigService } from '../config/app-config.service';
 
+const getMessageString = (msg: unknown): string | string[] | null => {
+  if (Array.isArray(msg)) {
+    return msg as string[];
+  }
+  if (typeof msg === 'string') {
+    return msg;
+  }
+  return null;
+};
+
+const extractResponseBodyMessage = (
+  responseBody: unknown,
+): string | string[] | null => {
+  if (responseBody && typeof responseBody === 'object') {
+    return getMessageString(
+      (responseBody as Record<string, unknown>)['message'],
+    );
+  }
+  return null;
+};
+
+const extractHttpExceptionMessage = (
+  exception: HttpException,
+): string | string[] => {
+  const bodyMsg = extractResponseBodyMessage(exception.getResponse());
+  return bodyMsg ?? exception.message;
+};
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
 
   constructor(private readonly configService: AppConfigService) {}
+
+  private extractMessage(exception: unknown): string | string[] {
+    if (exception instanceof HttpException) {
+      return extractHttpExceptionMessage(exception);
+    }
+    return 'Internal server error';
+  }
+
+  private logError(
+    status: HttpStatus,
+    request: Request,
+    exception: unknown,
+  ): void {
+    const details =
+      exception instanceof Error ? exception.message : String(exception);
+    const stack = exception instanceof Error ? exception.stack : undefined;
+
+    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      this.logger.error(
+        `[${request.method}] ${request.url} - Error: ${details}`,
+        stack,
+      );
+    } else {
+      this.logger.warn(`[${request.method}] ${request.url} - Warn: ${details}`);
+    }
+  }
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
@@ -26,40 +80,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    let message: string | string[] = 'Internal server error';
-
-    if (exception instanceof HttpException) {
-      const responseBody = exception.getResponse();
-      if (typeof responseBody === 'object' && 'message' in responseBody) {
-        const bodyMessage = (responseBody as Record<string, unknown>)[
-          'message'
-        ];
-
-        message = Array.isArray(bodyMessage)
-          ? (bodyMessage as string[])
-          : String(bodyMessage);
-      } else {
-        message = exception.message;
-      }
-    }
-
-    const errorDetails =
-      exception instanceof Error ? exception.message : String(exception);
-    const errorStack = exception instanceof Error ? exception.stack : undefined;
-
-    const internalServerError: number = HttpStatus.INTERNAL_SERVER_ERROR;
-    if (status === internalServerError) {
-      this.logger.error(
-        `[${request.method}] ${request.url} - Error: ${errorDetails}`,
-        errorStack,
-      );
-    } else {
-      this.logger.warn(
-        `[${request.method}] ${request.url} - Warn: ${errorDetails}`,
-      );
-    }
+    const message = this.extractMessage(exception);
+    this.logError(status, request, exception);
 
     const isProduction = this.configService.isProduction;
+    const errorStack = exception instanceof Error ? exception.stack : undefined;
 
     response.status(status).json({
       statusCode: status,
