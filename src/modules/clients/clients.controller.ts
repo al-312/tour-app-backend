@@ -1,9 +1,4 @@
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -18,12 +13,14 @@ import {
 
 import { UserRole } from '@/modules/roles/enums/role.enum';
 import { RolesGuard } from '@/modules/roles/guards/roles.guard';
+import { Client } from '@/modules/clients/entities/client.entity';
 import { Roles } from '@/modules/roles/decorators/roles.decorator';
 import { ClientsService } from '@/modules/clients/clients.service';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { CreateClientDto } from '@/modules/clients/dto/create-client.dto';
 import { UpdateClientDto } from '@/modules/clients/dto/update-client.dto';
-import { ClientResponseDto } from '@/modules/clients/dto/client-response.dto';
+import { JwtPayload } from '@/modules/auth/interfaces/jwt-payload.interface';
+import { CurrentUser } from '@/modules/auth/decorators/current-user.decorator';
 
 @ApiTags('Clients')
 @ApiBearerAuth()
@@ -34,66 +31,41 @@ export class ClientsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all clients' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns list of all clients',
-    type: [ClientResponseDto],
-  })
-  async findAll(): Promise<ClientResponseDto[]> {
-    return this.clientsService.findAll();
+  async findAll(@CurrentUser() user: JwtPayload): Promise<Client[]> {
+    const consultantId =
+      user.role === UserRole.CONSULTANT ? user.sub : undefined;
+    return this.clientsService.findAll(consultantId);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get client details by ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns client profile',
-    type: ClientResponseDto,
-  })
-  async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<ClientResponseDto> {
-    const client = await this.clientsService.findById(id);
-    return ClientResponseDto.fromEntity(client);
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Client> {
+    return this.clientsService.findById(id);
   }
 
   @Post()
-  @Roles(UserRole.ADMIN, UserRole.CONSULTANT)
+  @Roles(UserRole.ADMIN, UserRole.CONSULTANT, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create new client' })
-  @ApiResponse({
-    status: 201,
-    description: 'Client created successfully',
-    type: ClientResponseDto,
-  })
   async create(
+    @CurrentUser() user: JwtPayload,
     @Body() createClientDto: CreateClientDto,
-  ): Promise<ClientResponseDto> {
-    const client = await this.clientsService.create(createClientDto);
-    return ClientResponseDto.fromEntity(client);
+  ): Promise<Client> {
+    return this.clientsService.create(createClientDto, user.sub);
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN, UserRole.CONSULTANT)
+  @Roles(UserRole.ADMIN, UserRole.CONSULTANT, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update client details' })
-  @ApiResponse({
-    status: 200,
-    description: 'Client details updated successfully',
-    type: ClientResponseDto,
-  })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateClientDto: UpdateClientDto,
-  ): Promise<ClientResponseDto> {
+  ): Promise<Client> {
     return this.clientsService.update(id, updateClientDto);
   }
 
   @Delete(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Delete client profile' })
-  @ApiResponse({
-    status: 200,
-    description: 'Client deleted successfully',
-  })
   async remove(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<{ message: string }> {

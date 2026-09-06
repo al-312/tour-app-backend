@@ -22,6 +22,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { RefreshTokenDto } from '@/modules/auth/dto/refresh-token.dto';
 import { AuthResponseDto } from '@/modules/auth/dto/auth-response.dto';
 import { UserResponseDto } from '@/modules/users/dto/user-response.dto';
+import { ChangePasswordDto } from '@/modules/auth/dto/change-password.dto';
 import { JwtPayload } from '@/modules/auth/interfaces/jwt-payload.interface';
 import { CurrentUser } from '@/modules/auth/decorators/current-user.decorator';
 
@@ -82,5 +83,22 @@ export class AuthController {
     @CurrentUser() currentUser: JwtPayload,
   ): Promise<UserResponseDto> {
     return this.authService.getProfile(currentUser.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change current user password' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password changed successfully',
+    type: AuthResponseDto,
+  })
+  async changePassword(
+    @CurrentUser() currentUser: JwtPayload,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ): Promise<AuthResponseDto> {
+    return this.authService.changePassword(currentUser.sub, changePasswordDto);
   }
 }

@@ -20,11 +20,14 @@ export class Destination {
   @Column({ type: 'varchar', length: 255 })
   country!: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  city?: string;
+
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ type: 'varchar', length: 500, nullable: true })
-  coverImage?: string;
+  @Column({ type: 'varchar', length: 50, default: 'ACTIVE' })
+  status!: string;
 
   @OneToMany('Hotel', 'destination')
   hotels!: Hotel[];

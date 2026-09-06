@@ -39,6 +39,10 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
+  async save(user: User): Promise<User> {
+    return await this.userRepository.save(user);
+  }
+
   async findAll(): Promise<UserResponseDto[]> {
     const users = await this.userRepository.find({
       order: { createdAt: 'DESC' },

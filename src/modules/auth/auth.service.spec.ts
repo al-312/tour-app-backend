@@ -7,6 +7,7 @@ import { AuthService } from '@/modules/auth/auth.service';
 import { UserRole } from '@/modules/roles/enums/role.enum';
 import { UsersService } from '@/modules/users/users.service';
 import { AppConfigService } from '@/core/config/app-config.service';
+import { AuditLogsService } from '@/modules/audit-logs/audit-logs.service';
 
 import type { User } from '@/modules/users/entities/user.entity';
 
@@ -27,6 +28,9 @@ describe('AuthService', () => {
     verifyAsync: jest.Mock;
   };
   let configService: Partial<AppConfigService>;
+  let auditLogsService: {
+    logAction: jest.Mock;
+  };
 
   const mockUser: User = {
     id: 'user-1',
@@ -34,6 +38,9 @@ describe('AuthService', () => {
     email: 'jane@example.com',
     password: '$argon2id$v=19$m=65536,t=3,p=4$hashedpassword',
     role: UserRole.CLIENT,
+    status: 'ACTIVE',
+    mustChangePassword: false,
+    passwordChangedAt: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -57,12 +64,17 @@ describe('AuthService', () => {
       jwtRefreshExpiration: '7d',
     };
 
+    auditLogsService = {
+      logAction: jest.fn().mockResolvedValue(undefined),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         { provide: UsersService, useValue: usersService },
         { provide: JwtService, useValue: jwtService },
         { provide: AppConfigService, useValue: configService },
+        { provide: AuditLogsService, useValue: auditLogsService },
       ],
     }).compile();
 

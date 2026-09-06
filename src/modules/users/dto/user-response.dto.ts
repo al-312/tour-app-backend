@@ -16,6 +16,21 @@ export class UserResponseDto {
   @ApiProperty({ enum: UserRole, example: UserRole.CLIENT })
   role!: UserRole;
 
+  @ApiProperty({ example: 'ACTIVE' })
+  status!: string;
+
+  @ApiProperty({ example: false })
+  mustChangePassword!: boolean;
+
+  @ApiProperty({ example: '2026-08-17T12:00:00.000Z', nullable: true })
+  passwordChangedAt!: Date | null;
+
+  @ApiProperty({ example: '+1234567890', nullable: true })
+  phone?: string | null;
+
+  @ApiProperty({ example: 'Acme Travels', nullable: true })
+  companyName?: string | null;
+
   @ApiProperty({ example: '2026-08-17T12:00:00.000Z' })
   createdAt!: Date;
 
@@ -28,6 +43,11 @@ export class UserResponseDto {
       name: user.name,
       email: user.email,
       role: user.role,
+      status: user.status,
+      mustChangePassword: user.mustChangePassword,
+      passwordChangedAt: user.passwordChangedAt ?? null,
+      phone: user.phone ?? null,
+      companyName: user.companyName ?? null,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

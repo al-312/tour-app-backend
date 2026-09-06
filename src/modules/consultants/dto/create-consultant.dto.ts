@@ -1,11 +1,54 @@
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+
+export class PhoneDto {
+  @ApiPropertyOptional({ example: '+1', description: 'Country code' })
+  @IsString()
+  @IsOptional()
+  countryCode?: string;
+
+  @ApiPropertyOptional({ example: '5559876543', description: 'Phone number' })
+  @IsString()
+  @IsOptional()
+  number?: string;
+
+  @ApiPropertyOptional({
+    example: '5559876543',
+    description: 'Phone number alias',
+  })
+  @IsString()
+  @IsOptional()
+  phoneNumber?: string;
+}
 
 export class CreateConsultantDto {
-  @ApiProperty({ example: 'Sarah Jenkins', description: 'Name of consultant' })
+  @ApiProperty({ example: 'Sarah', description: 'First name of consultant' })
   @IsString()
   @IsNotEmpty()
-  name!: string;
+  firstName!: string;
+
+  @ApiPropertyOptional({
+    example: 'Jenkins',
+    description: 'Last name of consultant',
+  })
+  @IsString()
+  @IsOptional()
+  lastName?: string;
+
+  @ApiPropertyOptional({
+    example: 'Sarah Jenkins',
+    description: 'Full name fallback',
+  })
+  @IsString()
+  @IsOptional()
+  name?: string;
 
   @ApiProperty({
     example: 'Senior Travel Specialist',
@@ -16,12 +59,13 @@ export class CreateConsultantDto {
   designation!: string;
 
   @ApiPropertyOptional({
-    example: '+15559876543',
-    description: 'Contact phone',
+    type: PhoneDto,
+    description: 'Contact phone object',
   })
-  @IsString()
+  @ValidateNested()
+  @Type(() => PhoneDto)
   @IsOptional()
-  phone?: string;
+  phone?: PhoneDto;
 
   @ApiPropertyOptional({
     example: 'sarah.j@auratours.com',
@@ -30,12 +74,4 @@ export class CreateConsultantDto {
   @IsEmail()
   @IsOptional()
   email?: string;
-
-  @ApiPropertyOptional({
-    example: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-    description: 'URL of logo / avatar image',
-  })
-  @IsString()
-  @IsOptional()
-  logo?: string;
 }

@@ -10,6 +10,8 @@ import { HealthModule } from '@/modules/health/health.module';
 import { HotelsModule } from '@/modules/hotels/hotels.module';
 import { ClientsModule } from '@/modules/clients/clients.module';
 import { PackagesModule } from '@/modules/packages/packages.module';
+import { InquiriesModule } from '@/modules/inquiries/inquiries.module';
+import { AuditLogsModule } from '@/modules/audit-logs/audit-logs.module';
 import { ConsultantsModule } from '@/modules/consultants/consultants.module';
 import { DestinationsModule } from '@/modules/destinations/destinations.module';
 
@@ -20,6 +22,8 @@ import { DestinationsModule } from '@/modules/destinations/destinations.module';
     RolesModule,
     UsersModule,
     AuthModule,
+    AuditLogsModule,
+    InquiriesModule,
     DestinationsModule,
     HotelsModule,
     ClientsModule,

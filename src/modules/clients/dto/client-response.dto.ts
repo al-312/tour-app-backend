@@ -15,8 +15,8 @@ export class ClientResponseDto {
   @ApiPropertyOptional({ example: 'alice.smith@example.com' })
   email?: string | undefined;
 
-  @ApiPropertyOptional({ example: 'American' })
-  nationality?: string | undefined;
+  @ApiPropertyOptional({ example: 'United States' })
+  country?: string | undefined;
 
   @ApiPropertyOptional({ example: 'Prefers vegetarian meals' })
   notes?: string | undefined;
@@ -33,7 +33,7 @@ export class ClientResponseDto {
     dto.name = client.name;
     dto.phone = client.phone ?? undefined;
     dto.email = client.email ?? undefined;
-    dto.nationality = client.nationality ?? undefined;
+    dto.country = client.country ?? undefined;
     dto.notes = client.notes ?? undefined;
     dto.createdAt = client.createdAt;
     dto.updatedAt = client.updatedAt;

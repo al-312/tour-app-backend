@@ -31,6 +31,21 @@ export class User {
   })
   role!: UserRole;
 
+  @Column({ type: 'varchar', length: 50, default: 'ACTIVE' })
+  status!: string;
+
+  @Column({ type: 'boolean', default: false })
+  mustChangePassword!: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  passwordChangedAt!: Date | null;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  phone?: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  companyName?: string | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 

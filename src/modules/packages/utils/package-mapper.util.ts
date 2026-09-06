@@ -8,6 +8,7 @@ export function mapCreateDayInputsToEntities(
   return dayDtos.map((dayDto) => {
     const day = new PackageDay();
     day.dayNumber = dayDto.dayNumber;
+    day.destinationId = dayDto.destinationId ?? null;
     day.hotelId = dayDto.hotelId ?? null;
     if (dayDto.notes) {
       day.notes = dayDto.notes;

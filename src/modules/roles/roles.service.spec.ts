@@ -20,13 +20,15 @@ describe('RolesService', () => {
 
   it('should return all roles', () => {
     const roles = service.getAllRoles();
-    expect(roles).toHaveLength(3);
+    expect(roles).toHaveLength(4);
+    expect(roles.map((r) => r.name)).toContain(UserRole.SUPER_ADMIN);
     expect(roles.map((r) => r.name)).toContain(UserRole.ADMIN);
     expect(roles.map((r) => r.name)).toContain(UserRole.CONSULTANT);
     expect(roles.map((r) => r.name)).toContain(UserRole.CLIENT);
   });
 
   it('should validate role strings correctly', () => {
+    expect(service.isValidRole('SUPER_ADMIN')).toBe(true);
     expect(service.isValidRole('ADMIN')).toBe(true);
     expect(service.isValidRole('CONSULTANT')).toBe(true);
     expect(service.isValidRole('CLIENT')).toBe(true);

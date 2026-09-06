@@ -3,8 +3,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Package } from '@/modules/packages/entities/package.entity';
 import { HotelResponseDto } from '@/modules/hotels/dto/hotel-response.dto';
 import { PackageStatus } from '@/modules/packages/enums/package-status.enum';
-import { ClientResponseDto } from '@/modules/clients/dto/client-response.dto';
-import { ConsultantResponseDto } from '@/modules/consultants/dto/consultant-response.dto';
 import { DestinationResponseDto } from '@/modules/destinations/dto/destination-response.dto';
 
 export class PackageDayResponseDto {
@@ -13,6 +11,12 @@ export class PackageDayResponseDto {
 
   @ApiProperty({ example: 1 })
   dayNumber!: number;
+
+  @ApiPropertyOptional({ example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d' })
+  destinationId?: string | null;
+
+  @ApiPropertyOptional({ type: DestinationResponseDto })
+  destination?: DestinationResponseDto | null;
 
   @ApiPropertyOptional({ example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d' })
   hotelId!: string | null;
@@ -28,14 +32,11 @@ export class PackageResponseDto {
   @ApiProperty({ example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d' })
   id!: string;
 
-  @ApiProperty({ example: '7-Day Romantic Paris Getaway' })
+  @ApiProperty({ example: '5-Day Dubai Luxury Escape' })
   packageName!: string;
 
-  @ApiPropertyOptional({ example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d' })
-  clientId!: string | null;
-
-  @ApiPropertyOptional({ type: ClientResponseDto })
-  client?: ClientResponseDto | null;
+  @ApiProperty({ example: 'Bangalore' })
+  source!: string;
 
   @ApiPropertyOptional({ example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d' })
   destinationId!: string | null;
@@ -43,23 +44,20 @@ export class PackageResponseDto {
   @ApiPropertyOptional({ type: DestinationResponseDto })
   destination?: DestinationResponseDto | null;
 
-  @ApiPropertyOptional({ example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d' })
-  consultantId!: string | null;
+  @ApiProperty({ example: 5 })
+  durationDays!: number;
 
-  @ApiPropertyOptional({ type: ConsultantResponseDto })
-  consultant?: ConsultantResponseDto | null;
+  @ApiPropertyOptional({ example: '2026-10-01T06:00:00Z' })
+  fromDatetimeUtc?: Date | null;
 
-  @ApiPropertyOptional({ example: '2026-09-01' })
-  startDate?: Date | null;
+  @ApiPropertyOptional({ example: '2026-10-06T18:00:00Z' })
+  toDatetimeUtc?: Date | null;
 
-  @ApiProperty({ example: 7 })
-  numberOfDays!: number;
+  @ApiPropertyOptional({ example: 'Dubai luxury resort & desert safari tour.' })
+  summary?: string | null;
 
-  @ApiProperty({ example: 2 })
-  adults!: number;
-
-  @ApiProperty({ example: 0 })
-  children!: number;
+  @ApiPropertyOptional({ example: 1200 })
+  startingPrice?: number | null;
 
   @ApiProperty({ enum: PackageStatus, example: PackageStatus.CONFIRMED })
   status!: PackageStatus;
@@ -77,21 +75,17 @@ export class PackageResponseDto {
     const dto = new PackageResponseDto();
     dto.id = pkg.id;
     dto.packageName = pkg.packageName;
-    dto.clientId = pkg.clientId;
-    dto.client = pkg.client ? ClientResponseDto.fromEntity(pkg.client) : null;
+    dto.source = pkg.source;
     dto.destinationId = pkg.destinationId;
     dto.destination = pkg.destination
       ? DestinationResponseDto.fromEntity(pkg.destination)
       : null;
-    dto.consultantId = pkg.consultantId;
-    dto.consultant = pkg.consultant
-      ? ConsultantResponseDto.fromEntity(pkg.consultant)
-      : null;
-    dto.startDate = pkg.startDate;
-    dto.numberOfDays = pkg.numberOfDays;
-    dto.adults = pkg.adults;
-    dto.children = pkg.children;
-    dto.status = pkg.status;
+    dto.durationDays = pkg.durationDays;
+    dto.fromDatetimeUtc = pkg.fromDatetimeUtc;
+    dto.toDatetimeUtc = pkg.toDatetimeUtc;
+    dto.summary = pkg.summary ?? null;
+    dto.startingPrice = pkg.startingPrice;
+    dto.status = pkg.status as PackageStatus;
     dto.createdAt = pkg.createdAt;
     dto.updatedAt = pkg.updatedAt;
 
@@ -99,6 +93,10 @@ export class PackageResponseDto {
       const dayDto = new PackageDayResponseDto();
       dayDto.id = day.id;
       dayDto.dayNumber = day.dayNumber;
+      dayDto.destinationId = day.destinationId;
+      dayDto.destination = day.destination
+        ? DestinationResponseDto.fromEntity(day.destination)
+        : null;
       dayDto.hotelId = day.hotelId;
       dayDto.hotel = day.hotel ? HotelResponseDto.fromEntity(day.hotel) : null;
       dayDto.notes = day.notes ?? undefined;
