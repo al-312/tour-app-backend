@@ -20,13 +20,13 @@ export class Consultant {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'varchar', length: 150 })
+  @Column({ type: 'varchar', length: 150, default: '' })
   firstName!: string;
 
   @Column({ type: 'varchar', length: 150, nullable: true })
   lastName?: string;
 
-  @Column({ type: 'varchar', length: 150 })
+  @Column({ type: 'varchar', length: 150, default: '' })
   designation!: string;
 
   @Column({ type: 'jsonb', nullable: true })
