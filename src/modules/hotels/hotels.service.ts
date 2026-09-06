@@ -1,4 +1,4 @@
-import { Repository, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
@@ -27,7 +27,12 @@ export class HotelsService {
   ) {}
 
   async create(createHotelDto: CreateHotelDto): Promise<Hotel> {
-    const { destinationId, name, starRating, roomTypeIds } = createHotelDto;
+    const {
+      destinationId,
+      name,
+      starRating,
+      roomTypes: inlineRoomTypes,
+    } = createHotelDto;
 
     if (destinationId) {
       const destination = await this.destinationRepository.findOne({
@@ -40,10 +45,9 @@ export class HotelsService {
       }
     }
 
-    let roomTypes: RoomType[] = [];
-    if (roomTypeIds && roomTypeIds.length > 0) {
-      roomTypes = await this.roomTypeRepository.findBy({ id: In(roomTypeIds) });
-    }
+    const roomTypes = (inlineRoomTypes ?? []).map((rt) =>
+      this.roomTypeRepository.create(rt),
+    );
 
     const hotel = this.hotelRepository.create({
       name,
@@ -104,14 +108,14 @@ export class HotelsService {
     if (updateHotelDto.destinationId !== undefined) {
       hotel.destinationId = updateHotelDto.destinationId ?? null;
     }
-    if (updateHotelDto.roomTypeIds !== undefined) {
-      if (updateHotelDto.roomTypeIds.length > 0) {
-        hotel.roomTypes = await this.roomTypeRepository.findBy({
-          id: In(updateHotelDto.roomTypeIds),
-        });
-      } else {
-        hotel.roomTypes = [];
+
+    if (updateHotelDto.roomTypes !== undefined) {
+      if (hotel.roomTypes.length > 0) {
+        await this.roomTypeRepository.remove(hotel.roomTypes);
       }
+      hotel.roomTypes = updateHotelDto.roomTypes.map((rt) =>
+        this.roomTypeRepository.create(rt),
+      );
     }
 
     await this.hotelRepository.save(hotel);

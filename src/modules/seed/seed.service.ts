@@ -92,86 +92,7 @@ export class SeedService {
       }),
     );
 
-    // 3. Independent Room Types
-    const deluxeOcean = await this.roomTypeRepository.save(
-      this.roomTypeRepository.create({
-        name: 'Deluxe Ocean Room',
-        roomPrice: 350,
-        maxAdults: 2,
-        maxChildren: 1,
-        extraBedAvailable: true,
-        extraBedPrice: 80,
-        maxExtraBeds: 1,
-        status: 'ACTIVE',
-      }),
-    );
-
-    const imperialSuite = await this.roomTypeRepository.save(
-      this.roomTypeRepository.create({
-        name: 'Imperial Family Suite',
-        roomPrice: 750,
-        maxAdults: 4,
-        maxChildren: 2,
-        extraBedAvailable: true,
-        extraBedPrice: 120,
-        maxExtraBeds: 2,
-        status: 'ACTIVE',
-      }),
-    );
-
-    const deluxePalmSuite = await this.roomTypeRepository.save(
-      this.roomTypeRepository.create({
-        name: 'Deluxe Palm Suite',
-        roomPrice: 950,
-        maxAdults: 2,
-        maxChildren: 1,
-        extraBedAvailable: true,
-        extraBedPrice: 200,
-        maxExtraBeds: 1,
-        status: 'ACTIVE',
-      }),
-    );
-
-    const superiorRoom = await this.roomTypeRepository.save(
-      this.roomTypeRepository.create({
-        name: 'Superior Room',
-        roomPrice: 420,
-        maxAdults: 2,
-        maxChildren: 1,
-        extraBedAvailable: false,
-        extraBedPrice: 0,
-        maxExtraBeds: 0,
-        status: 'ACTIVE',
-      }),
-    );
-
-    const executiveSuite = await this.roomTypeRepository.save(
-      this.roomTypeRepository.create({
-        name: 'Executive Suite',
-        roomPrice: 890,
-        maxAdults: 3,
-        maxChildren: 1,
-        extraBedAvailable: true,
-        extraBedPrice: 150,
-        maxExtraBeds: 1,
-        status: 'ACTIVE',
-      }),
-    );
-
-    const oceanViewSuite = await this.roomTypeRepository.save(
-      this.roomTypeRepository.create({
-        name: 'Ocean View Suite',
-        roomPrice: 280,
-        maxAdults: 2,
-        maxChildren: 1,
-        extraBedAvailable: true,
-        extraBedPrice: 60,
-        maxExtraBeds: 1,
-        status: 'ACTIVE',
-      }),
-    );
-
-    // Hotels
+    // Hotels with individual Room Types
     const atlantis = await this.hotelRepository.save(
       this.hotelRepository.create({
         name: 'Atlantis The Palm',
@@ -179,7 +100,28 @@ export class SeedService {
         starRating: 5,
         address: 'Crescent Rd, The Palm Jumeirah, Dubai',
         status: 'ACTIVE',
-        roomTypes: [deluxeOcean, imperialSuite],
+        roomTypes: [
+          this.roomTypeRepository.create({
+            name: 'Deluxe Ocean Room',
+            roomPrice: 350,
+            maxAdults: 2,
+            maxChildren: 1,
+            extraBedAvailable: true,
+            extraBedPrice: 80,
+            maxExtraBeds: 1,
+            status: 'ACTIVE',
+          }),
+          this.roomTypeRepository.create({
+            name: 'Imperial Family Suite',
+            roomPrice: 750,
+            maxAdults: 4,
+            maxChildren: 2,
+            extraBedAvailable: true,
+            extraBedPrice: 120,
+            maxExtraBeds: 2,
+            status: 'ACTIVE',
+          }),
+        ],
       }),
     );
 
@@ -190,7 +132,18 @@ export class SeedService {
         starRating: 5,
         address: 'Jumeirah St, Dubai',
         status: 'ACTIVE',
-        roomTypes: [deluxePalmSuite],
+        roomTypes: [
+          this.roomTypeRepository.create({
+            name: 'Deluxe Palm Suite',
+            roomPrice: 950,
+            maxAdults: 2,
+            maxChildren: 1,
+            extraBedAvailable: true,
+            extraBedPrice: 200,
+            maxExtraBeds: 1,
+            status: 'ACTIVE',
+          }),
+        ],
       }),
     );
 
@@ -201,7 +154,28 @@ export class SeedService {
         starRating: 5,
         address: '228 Rue de Rivoli, Paris',
         status: 'ACTIVE',
-        roomTypes: [superiorRoom, executiveSuite],
+        roomTypes: [
+          this.roomTypeRepository.create({
+            name: 'Superior Room',
+            roomPrice: 420,
+            maxAdults: 2,
+            maxChildren: 1,
+            extraBedAvailable: false,
+            extraBedPrice: 0,
+            maxExtraBeds: 0,
+            status: 'ACTIVE',
+          }),
+          this.roomTypeRepository.create({
+            name: 'Executive Suite',
+            roomPrice: 890,
+            maxAdults: 3,
+            maxChildren: 1,
+            extraBedAvailable: true,
+            extraBedPrice: 150,
+            maxExtraBeds: 1,
+            status: 'ACTIVE',
+          }),
+        ],
       }),
     );
 
@@ -212,9 +186,25 @@ export class SeedService {
         starRating: 5,
         address: 'Jalan Raya Nusa Dua Selatan, Bali',
         status: 'ACTIVE',
-        roomTypes: [oceanViewSuite],
+        roomTypes: [
+          this.roomTypeRepository.create({
+            name: 'Ocean View Suite',
+            roomPrice: 280,
+            maxAdults: 2,
+            maxChildren: 1,
+            extraBedAvailable: true,
+            extraBedPrice: 60,
+            maxExtraBeds: 1,
+            status: 'ACTIVE',
+          }),
+        ],
       }),
     );
+
+    const deluxeOcean = atlantis.roomTypes[0];
+    if (!deluxeOcean) {
+      throw new Error('Missing room type deluxeOcean on seeded hotel');
+    }
 
     // Clients
     const client1 = await this.clientRepository.save(

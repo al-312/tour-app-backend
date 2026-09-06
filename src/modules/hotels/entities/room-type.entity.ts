@@ -4,12 +4,26 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+
+import type { Hotel } from '@/modules/hotels/entities/hotel.entity';
 
 @Entity('room_types')
 export class RoomType {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  hotelId!: string | null;
+
+  @ManyToOne('Hotel', 'roomTypes', {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'hotelId' })
+  hotel!: Hotel | null;
 
   @Column({ type: 'varchar', length: 255 })
   name!: string;
