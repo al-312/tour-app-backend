@@ -10,6 +10,8 @@ export interface RoleInfo {
 @Injectable()
 export class RolesService {
   private readonly rolesInfo: Record<UserRole, string> = {
+    [UserRole.SUPER_ADMIN]:
+      'Full root platform administration and encrypted audit log access',
     [UserRole.ADMIN]: 'Full system access and administrative controls',
     [UserRole.CONSULTANT]:
       'Access to create, manage, and assign tour packages and clients',

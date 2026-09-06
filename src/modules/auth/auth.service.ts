@@ -2,6 +2,7 @@ import * as argon2 from 'argon2';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import {
   Injectable,
+  BadRequestException,
   UnauthorizedException,
   ConflictException,
 } from '@nestjs/common';
@@ -14,6 +15,8 @@ import { AppConfigService } from '@/core/config/app-config.service';
 import { RefreshTokenDto } from '@/modules/auth/dto/refresh-token.dto';
 import { AuthResponseDto } from '@/modules/auth/dto/auth-response.dto';
 import { UserResponseDto } from '@/modules/users/dto/user-response.dto';
+import { ChangePasswordDto } from '@/modules/auth/dto/change-password.dto';
+import { AuditLogsService } from '@/modules/audit-logs/audit-logs.service';
 import { JwtPayload } from '@/modules/auth/interfaces/jwt-payload.interface';
 
 @Injectable()
@@ -22,6 +25,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: AppConfigService,
+    private readonly auditLogsService: AuditLogsService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
@@ -66,6 +70,51 @@ export class AuthService {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       user: UserResponseDto.fromEntity(user),
+    };
+  }
+
+  async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<AuthResponseDto> {
+    if (changePasswordDto.newPassword !== changePasswordDto.confirmPassword) {
+      throw new BadRequestException(
+        'New password and confirmation do not match',
+      );
+    }
+
+    const user = await this.usersService.findById(userId);
+    const isCurrentValid = await argon2.verify(
+      user.password,
+      changePasswordDto.currentPassword,
+    );
+
+    if (!isCurrentValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const newHashed = await argon2.hash(changePasswordDto.newPassword);
+    user.password = newHashed;
+    user.mustChangePassword = false;
+    user.passwordChangedAt = new Date();
+
+    const updatedUser = await this.usersService.save(user);
+
+    await this.auditLogsService.logAction({
+      actorId: user.id,
+      actorRole: user.role,
+      action: 'PASSWORD_CHANGE',
+      module: 'AUTH',
+      entityType: 'User',
+      entityId: user.id,
+      summary: `User password updated for ${user.email}`,
+    });
+
+    const tokens = await this.generateTokens(updatedUser);
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: UserResponseDto.fromEntity(updatedUser),
     };
   }
 

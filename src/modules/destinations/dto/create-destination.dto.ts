@@ -19,12 +19,4 @@ export class CreateDestinationDto {
   @IsString()
   @IsOptional()
   description?: string;
-
-  @ApiPropertyOptional({
-    example: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34',
-    description: 'URL of the cover image',
-  })
-  @IsString()
-  @IsOptional()
-  coverImage?: string;
 }

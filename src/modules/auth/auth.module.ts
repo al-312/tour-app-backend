@@ -8,12 +8,14 @@ import { AuthController } from '@/modules/auth/auth.controller';
 import { AppConfigModule } from '@/core/config/app-config.module';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { AppConfigService } from '@/core/config/app-config.service';
+import { AuditLogsModule } from '@/modules/audit-logs/audit-logs.module';
 
 @Module({
   imports: [
     UsersModule,
     RolesModule,
     AppConfigModule,
+    AuditLogsModule,
     JwtModule.registerAsync({
       global: true,
       imports: [AppConfigModule],

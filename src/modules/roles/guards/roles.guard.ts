@@ -35,7 +35,10 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('User identity or role not found');
     }
 
-    const hasRole = requiredRoles.includes(user.role);
+    const hasRole =
+      requiredRoles.includes(user.role) ||
+      (user.role === UserRole.SUPER_ADMIN &&
+        requiredRoles.includes(UserRole.ADMIN));
     if (!hasRole) {
       throw new ForbiddenException(
         `User does not have required permissions (${requiredRoles.join(', ')})`,

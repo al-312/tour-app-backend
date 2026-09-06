@@ -15,9 +15,6 @@ export class DestinationResponseDto {
   @ApiPropertyOptional({ example: 'The city of light' })
   description?: string | undefined;
 
-  @ApiPropertyOptional({ example: 'https://images.unsplash.com/...' })
-  coverImage?: string | undefined;
-
   @ApiProperty({ example: '2026-08-20T12:00:00.000Z' })
   createdAt!: Date;
 
@@ -30,7 +27,6 @@ export class DestinationResponseDto {
     dto.name = destination.name;
     dto.country = destination.country;
     dto.description = destination.description ?? undefined;
-    dto.coverImage = destination.coverImage ?? undefined;
     dto.createdAt = destination.createdAt;
     dto.updatedAt = destination.updatedAt;
     return dto;

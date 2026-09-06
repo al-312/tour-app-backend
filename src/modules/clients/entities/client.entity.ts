@@ -14,6 +14,9 @@ export class Client {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  consultantId!: string | null;
+
   @Column({ type: 'varchar', length: 255 })
   name!: string;
 
@@ -24,7 +27,16 @@ export class Client {
   email?: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  nationality?: string;
+  country?: string;
+
+  @Column({ type: 'text', nullable: true })
+  address?: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  passportNumber?: string;
+
+  @Column({ type: 'date', nullable: true })
+  dateOfBirth?: Date;
 
   @Column({ type: 'text', nullable: true })
   notes?: string;
