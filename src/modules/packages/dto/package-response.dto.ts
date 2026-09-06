@@ -85,7 +85,15 @@ export class PackageResponseDto {
     dto.toDatetimeUtc = pkg.toDatetimeUtc;
     dto.summary = pkg.summary ?? null;
     dto.startingPrice = pkg.startingPrice;
-    dto.status = pkg.status as PackageStatus;
+    let statusVal = pkg.status as PackageStatus;
+    if (
+      pkg.toDatetimeUtc &&
+      new Date(pkg.toDatetimeUtc) < new Date() &&
+      statusVal !== PackageStatus.CANCELLED
+    ) {
+      statusVal = PackageStatus.EXPIRED;
+    }
+    dto.status = statusVal;
     dto.createdAt = pkg.createdAt;
     dto.updatedAt = pkg.updatedAt;
 

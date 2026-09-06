@@ -61,15 +61,21 @@ export class CreatePackageDto {
   @IsOptional()
   children?: number;
 
-  @ApiPropertyOptional({ example: '2026-10-01T08:00:00.000Z' })
+  @ApiProperty({
+    example: '2026-10-01T08:00:00.000Z',
+    description: 'Package validity start date',
+  })
   @IsDateString()
-  @IsOptional()
-  fromDatetimeUtc?: string;
+  @IsNotEmpty()
+  fromDatetimeUtc!: string;
 
-  @ApiPropertyOptional({ example: '2026-10-06T18:00:00.000Z' })
+  @ApiProperty({
+    example: '2026-10-06T18:00:00.000Z',
+    description: 'Package validity end date',
+  })
   @IsDateString()
-  @IsOptional()
-  toDatetimeUtc?: string;
+  @IsNotEmpty()
+  toDatetimeUtc!: string;
 
   @ApiPropertyOptional({
     example:

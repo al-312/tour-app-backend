@@ -40,12 +40,8 @@ export class PackagesService {
       durationDays: createPackageDto.durationDays,
       adults: createPackageDto.adults ?? 2,
       children: createPackageDto.children ?? 0,
-      fromDatetimeUtc: createPackageDto.fromDatetimeUtc
-        ? new Date(createPackageDto.fromDatetimeUtc)
-        : null,
-      toDatetimeUtc: createPackageDto.toDatetimeUtc
-        ? new Date(createPackageDto.toDatetimeUtc)
-        : null,
+      fromDatetimeUtc: new Date(createPackageDto.fromDatetimeUtc),
+      toDatetimeUtc: new Date(createPackageDto.toDatetimeUtc),
       summary: createPackageDto.summary ?? '',
       startingPrice: createPackageDto.startingPrice ?? 0,
       status: createPackageDto.status ?? 'ACTIVE',
@@ -102,7 +98,10 @@ export class PackagesService {
       .leftJoinAndSelect('packageDays.destination', 'dayDestination')
       .leftJoinAndSelect('packageDays.hotel', 'hotel')
       .leftJoinAndSelect('hotel.roomTypes', 'roomTypes')
-      .where("pkg.status = 'ACTIVE'");
+      .where("pkg.status NOT IN ('EXPIRED', 'CANCELLED')")
+      .andWhere('(pkg.toDatetimeUtc IS NULL OR pkg.toDatetimeUtc >= :now)', {
+        now: new Date(),
+      });
 
     if (params.destinationId) {
       qb.andWhere('pkg.destinationId = :destinationId', {
