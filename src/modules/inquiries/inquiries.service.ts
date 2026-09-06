@@ -15,12 +15,12 @@ import { RoomType } from '@/modules/hotels/entities/room-type.entity';
 import { AuditLogsService } from '@/modules/audit-logs/audit-logs.service';
 import { CreateInquiryDto } from '@/modules/inquiries/dto/create-inquiry.dto';
 import { calculateRoomAllocation } from '@/modules/hotels/utils/room-allocation.util';
-import { UpdateInquiryStatusDto } from '@/modules/inquiries/dto/update-inquiry-status.dto';
-import { generateInquiryVoucherHtml } from '@/modules/inquiries/utils/inquiry-voucher.util';
 import {
   Inquiry,
   InquiryStatus,
 } from '@/modules/inquiries/entities/inquiry.entity';
+import { UpdateInquiryStatusDto } from '@/modules/inquiries/dto/update-inquiry-status.dto';
+import { generateInquiryVoucherHtml } from '@/modules/inquiries/utils/inquiry-voucher.util';
 import { InquiryHotelSelection } from '@/modules/inquiries/entities/inquiry-hotel-selection.entity';
 
 @Injectable()
