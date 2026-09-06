@@ -36,7 +36,10 @@ export class PackagesService {
       packageName: createPackageDto.packageName,
       source: createPackageDto.source,
       destinationId: createPackageDto.destinationId,
+      clientId: createPackageDto.clientId ?? null,
       durationDays: createPackageDto.durationDays,
+      adults: createPackageDto.adults ?? 2,
+      children: createPackageDto.children ?? 0,
       fromDatetimeUtc: createPackageDto.fromDatetimeUtc
         ? new Date(createPackageDto.fromDatetimeUtc)
         : null,
@@ -70,6 +73,7 @@ export class PackagesService {
     return this.packageRepository.find({
       where: whereCondition,
       relations: {
+        client: true,
         destination: true,
         packageDays: {
           destination: true,
@@ -92,6 +96,7 @@ export class PackagesService {
   }): Promise<Package[]> {
     const qb = this.packageRepository
       .createQueryBuilder('pkg')
+      .leftJoinAndSelect('pkg.client', 'client')
       .leftJoinAndSelect('pkg.destination', 'destination')
       .leftJoinAndSelect('pkg.packageDays', 'packageDays')
       .leftJoinAndSelect('packageDays.destination', 'dayDestination')
@@ -123,6 +128,7 @@ export class PackagesService {
     const pkg = await this.packageRepository.findOne({
       where: { id },
       relations: {
+        client: true,
         destination: true,
         packageDays: {
           destination: true,
@@ -162,8 +168,17 @@ export class PackagesService {
     if (updatePackageDto.destinationId !== undefined) {
       pkg.destinationId = updatePackageDto.destinationId;
     }
+    if (updatePackageDto.clientId !== undefined) {
+      pkg.clientId = updatePackageDto.clientId;
+    }
     if (updatePackageDto.durationDays !== undefined) {
       pkg.durationDays = updatePackageDto.durationDays;
+    }
+    if (updatePackageDto.adults !== undefined) {
+      pkg.adults = updatePackageDto.adults;
+    }
+    if (updatePackageDto.children !== undefined) {
+      pkg.children = updatePackageDto.children;
     }
     if (updatePackageDto.summary !== undefined) {
       pkg.summary = updatePackageDto.summary;

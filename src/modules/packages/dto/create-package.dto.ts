@@ -36,10 +36,30 @@ export class CreatePackageDto {
   @IsUUID()
   destinationId!: string;
 
+  @ApiPropertyOptional({
+    example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+    description: 'Client UUID',
+  })
+  @IsUUID()
+  @IsOptional()
+  clientId?: string;
+
   @ApiProperty({ example: 5, description: 'Duration in days' })
   @IsInt()
   @Min(1)
   durationDays!: number;
+
+  @ApiPropertyOptional({ example: 2, description: 'Adult travelers' })
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  adults?: number;
+
+  @ApiPropertyOptional({ example: 0, description: 'Child travelers' })
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  children?: number;
 
   @ApiPropertyOptional({ example: '2026-10-01T08:00:00.000Z' })
   @IsDateString()
