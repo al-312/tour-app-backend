@@ -13,10 +13,14 @@ export interface SampleSeedEntities {
   dubai: Destination;
   paris: Destination;
   bali: Destination;
+  singapore: Destination;
+  maldives: Destination;
   atlantis: Hotel;
   burjAlArab: Hotel;
   leMeurice: Hotel;
   ritzCarlton: Hotel;
+  marinaBaySands: Hotel;
+  sonevaFushi: Hotel;
   deluxeOcean: RoomType;
   client1: Client;
   client2: Client;
@@ -32,10 +36,14 @@ export async function createSampleInquiries(
     dubai,
     paris,
     bali,
+    singapore,
+    maldives,
     atlantis,
     burjAlArab,
     leMeurice,
     ritzCarlton,
+    marinaBaySands,
+    sonevaFushi,
     deluxeOcean,
     client1,
     client2,
@@ -128,6 +136,52 @@ export async function createSampleInquiries(
           dayNumber: 1,
           destinationId: bali.id,
           hotelId: ritzCarlton.id,
+          sortOrder: 1,
+        }),
+      ],
+    }),
+  );
+
+  await repos.packageRepository.save(
+    repos.packageRepository.create({
+      packageName: '5-Day Singapore City & Island Experience',
+      source: 'Chennai',
+      destinationId: singapore.id,
+      durationDays: 5,
+      fromDatetimeUtc: new Date('2026-10-15T08:00:00Z'),
+      toDatetimeUtc: new Date('2026-10-20T20:00:00Z'),
+      summary: 'Explore Singapore skyline and Marina Bay Sands rooftop pool.',
+      startingPrice: 1850,
+      status: 'ACTIVE',
+      createdBy: admin.id,
+      packageDays: [
+        repos.packageDayRepository.create({
+          dayNumber: 1,
+          destinationId: singapore.id,
+          hotelId: marinaBaySands.id,
+          sortOrder: 1,
+        }),
+      ],
+    }),
+  );
+
+  await repos.packageRepository.save(
+    repos.packageRepository.create({
+      packageName: '7-Day Maldives Luxury Overwater Haven',
+      source: 'Hyderabad',
+      destinationId: maldives.id,
+      durationDays: 7,
+      fromDatetimeUtc: new Date('2026-11-01T08:00:00Z'),
+      toDatetimeUtc: new Date('2026-11-08T20:00:00Z'),
+      summary: 'Exclusive overwater villa experience in pristine Baa Atoll.',
+      startingPrice: 3200,
+      status: 'ACTIVE',
+      createdBy: admin.id,
+      packageDays: [
+        repos.packageDayRepository.create({
+          dayNumber: 1,
+          destinationId: maldives.id,
+          hotelId: sonevaFushi.id,
           sortOrder: 1,
         }),
       ],
