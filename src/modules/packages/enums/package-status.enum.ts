@@ -1,4 +1,8 @@
 export enum PackageStatus {
   CONFIRMED = 'CONFIRMED',
   CANCELLED = 'CANCELLED',
+  EXPIRED = 'EXPIRED',
+  ACTIVE = 'ACTIVE',
+  DRAFT = 'DRAFT',
+  INACTIVE = 'INACTIVE',
 }

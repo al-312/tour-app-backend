@@ -1,5 +1,7 @@
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsArray,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -7,7 +9,10 @@ import {
   IsUUID,
   Max,
   Min,
+  ValidateNested,
 } from 'class-validator';
+
+import { CreateRoomTypeDto } from './create-room-type.dto';
 
 export class CreateHotelDto {
   @ApiProperty({
@@ -33,9 +38,12 @@ export class CreateHotelDto {
   starRating!: number;
 
   @ApiPropertyOptional({
-    example: ['a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d'],
-    description: 'Associated Room Type UUIDs',
+    type: [CreateRoomTypeDto],
+    description: 'Room Types belonging to this hotel',
   })
   @IsOptional()
-  roomTypeIds?: string[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateRoomTypeDto)
+  roomTypes?: CreateRoomTypeDto[];
 }

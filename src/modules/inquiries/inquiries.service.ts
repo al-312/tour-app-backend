@@ -14,7 +14,6 @@ import { Package } from '@/modules/packages/entities/package.entity';
 import { RoomType } from '@/modules/hotels/entities/room-type.entity';
 import { AuditLogsService } from '@/modules/audit-logs/audit-logs.service';
 import { CreateInquiryDto } from '@/modules/inquiries/dto/create-inquiry.dto';
-import { calculateRoomAllocation } from '@/modules/hotels/utils/room-allocation.util';
 import {
   Inquiry,
   InquiryStatus,
@@ -22,6 +21,12 @@ import {
 import { UpdateInquiryStatusDto } from '@/modules/inquiries/dto/update-inquiry-status.dto';
 import { generateInquiryVoucherHtml } from '@/modules/inquiries/utils/inquiry-voucher.util';
 import { InquiryHotelSelection } from '@/modules/inquiries/entities/inquiry-hotel-selection.entity';
+import {
+  buildPackageSnapshot,
+  resolveEffectiveSelections,
+  processHotelSelections,
+  saveInquirySelections,
+} from '@/modules/inquiries/utils/inquiry-helpers.util';
 
 @Injectable()
 export class InquiriesService {
@@ -74,88 +79,26 @@ export class InquiriesService {
     const count = await this.inquiryRepository.count();
     const inquiryNumber = `INQ-${String(new Date().getFullYear())}-${String(count + 1).padStart(6, '0')}`;
 
-    let overallTotal = 0;
-    const processedSelections: Array<{
-      dayNumber: number;
-      destinationId: string;
-      hotelId: string;
-      hotelName: string;
-      roomTypeId: string;
-      roomTypeName: string;
-      numberOfRooms: number;
-      numberOfExtraBeds: number;
-      roomPrice: number;
-      extraBedPrice: number;
-      nights: number;
-      calculatedTotal: number;
-    }> = [];
+    const effectiveSelections = await resolveEffectiveSelections(
+      dto.hotelSelections,
+      pkg,
+      dto.destinationId,
+      this.roomTypeRepository,
+    );
 
-    for (const selectionDto of dto.hotelSelections) {
-      const hotel = await this.hotelRepository.findOne({
-        where: { id: selectionDto.hotelId },
-      });
-      if (!hotel) {
-        throw new NotFoundException(
-          `Hotel with ID ${selectionDto.hotelId} not found`,
-        );
-      }
+    const { overallTotal, processedSelections } = await processHotelSelections(
+      effectiveSelections,
+      dto.adults,
+      this.hotelRepository,
+      this.roomTypeRepository,
+    );
 
-      if (hotel.destinationId !== selectionDto.destinationId) {
-        throw new BadRequestException(
-          `Hotel ${hotel.name} does not belong to destination of day ${String(selectionDto.dayNumber)}`,
-        );
-      }
-
-      const roomType = await this.roomTypeRepository.findOne({
-        where: { id: selectionDto.roomTypeId },
-      });
-      if (!roomType) {
-        throw new NotFoundException(
-          `Room type with ID ${selectionDto.roomTypeId} not found for hotel ${hotel.name}`,
-        );
-      }
-
-      const nights = selectionDto.nights ?? 1;
-      const allocation = calculateRoomAllocation(dto.adults, roomType, nights);
-
-      overallTotal += allocation.calculatedTotal;
-
-      processedSelections.push({
-        dayNumber: selectionDto.dayNumber,
-        destinationId: selectionDto.destinationId,
-        hotelId: hotel.id,
-        hotelName: hotel.name,
-        roomTypeId: roomType.id,
-        roomTypeName: roomType.name,
-        numberOfRooms: allocation.numberOfRooms,
-        numberOfExtraBeds: allocation.numberOfExtraBeds,
-        roomPrice: allocation.roomPrice,
-        extraBedPrice: allocation.extraBedPrice,
-        nights,
-        calculatedTotal: allocation.calculatedTotal,
-      });
-    }
-
-    const packageSnapshot = {
-      packageId: pkg.id,
-      packageName: pkg.packageName,
-      source: dto.source,
-      destinationId: dto.destinationId,
-      destinationName: pkg.destination?.name ?? '',
-      days: dto.days,
-      adults: dto.adults,
-      children: dto.children ?? 0,
-      travelDate: dto.travelDate,
-      itinerary: pkg.packageDays.map((pd) => ({
-        dayNumber: pd.dayNumber,
-        destinationId: pd.destinationId,
-        destinationName: pd.destination?.name ?? '',
-        notes: pd.notes,
-      })),
-      hotelSelections: processedSelections,
-      calculatedTotal: overallTotal,
-      snapshotCreatedAt: new Date().toISOString(),
-    };
+    const packageSnapshot = buildPackageSnapshot(
+      pkg,
+      dto,
+      processedSelections,
+      overallTotal,
+    );
 
     const inquiry = this.inquiryRepository.create({
       inquiryNumber,
@@ -176,23 +119,11 @@ export class InquiriesService {
     });
 
     const savedInquiry = await this.inquiryRepository.save(inquiry);
-
-    for (const sel of processedSelections) {
-      const selection = this.selectionRepository.create({
-        inquiryId: savedInquiry.id,
-        dayNumber: sel.dayNumber,
-        destinationId: sel.destinationId,
-        hotelId: sel.hotelId,
-        roomTypeId: sel.roomTypeId,
-        numberOfRooms: sel.numberOfRooms,
-        numberOfExtraBeds: sel.numberOfExtraBeds,
-        roomPrice: sel.roomPrice,
-        extraBedPrice: sel.extraBedPrice,
-        nights: sel.nights,
-        calculatedTotal: sel.calculatedTotal,
-      });
-      await this.selectionRepository.save(selection);
-    }
+    await saveInquirySelections(
+      savedInquiry.id,
+      processedSelections,
+      this.selectionRepository,
+    );
 
     await this.auditLogsService.logAction({
       actorId: consultantId,

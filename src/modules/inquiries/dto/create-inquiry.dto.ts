@@ -75,9 +75,10 @@ export class CreateInquiryDto {
   @Min(0)
   children?: number;
 
-  @ApiProperty({ type: [HotelSelectionDto] })
+  @ApiPropertyOptional({ type: [HotelSelectionDto] })
   @IsArray()
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => HotelSelectionDto)
-  hotelSelections!: HotelSelectionDto[];
+  hotelSelections?: HotelSelectionDto[];
 }

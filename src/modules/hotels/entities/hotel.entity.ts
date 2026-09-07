@@ -5,9 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  ManyToMany,
+  OneToMany,
   JoinColumn,
-  JoinTable,
 } from 'typeorm';
 
 import { RoomType } from '@/modules/hotels/entities/room-type.entity';
@@ -44,11 +43,8 @@ export class Hotel {
   @Column({ type: 'varchar', length: 50, default: 'ACTIVE' })
   status!: string;
 
-  @ManyToMany(() => RoomType, { cascade: true })
-  @JoinTable({
-    name: 'hotel_room_types',
-    joinColumn: { name: 'hotel_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'room_type_id', referencedColumnName: 'id' },
+  @OneToMany(() => RoomType, (roomType) => roomType.hotel, {
+    cascade: true,
   })
   roomTypes!: RoomType[];
 

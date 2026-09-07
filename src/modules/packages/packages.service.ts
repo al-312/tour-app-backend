@@ -36,13 +36,12 @@ export class PackagesService {
       packageName: createPackageDto.packageName,
       source: createPackageDto.source,
       destinationId: createPackageDto.destinationId,
+      clientId: createPackageDto.clientId ?? null,
       durationDays: createPackageDto.durationDays,
-      fromDatetimeUtc: createPackageDto.fromDatetimeUtc
-        ? new Date(createPackageDto.fromDatetimeUtc)
-        : null,
-      toDatetimeUtc: createPackageDto.toDatetimeUtc
-        ? new Date(createPackageDto.toDatetimeUtc)
-        : null,
+      adults: createPackageDto.adults ?? 2,
+      children: createPackageDto.children ?? 0,
+      fromDatetimeUtc: new Date(createPackageDto.fromDatetimeUtc),
+      toDatetimeUtc: new Date(createPackageDto.toDatetimeUtc),
       summary: createPackageDto.summary ?? '',
       startingPrice: createPackageDto.startingPrice ?? 0,
       status: createPackageDto.status ?? 'ACTIVE',
@@ -70,6 +69,7 @@ export class PackagesService {
     return this.packageRepository.find({
       where: whereCondition,
       relations: {
+        client: true,
         destination: true,
         packageDays: {
           destination: true,
@@ -92,12 +92,16 @@ export class PackagesService {
   }): Promise<Package[]> {
     const qb = this.packageRepository
       .createQueryBuilder('pkg')
+      .leftJoinAndSelect('pkg.client', 'client')
       .leftJoinAndSelect('pkg.destination', 'destination')
       .leftJoinAndSelect('pkg.packageDays', 'packageDays')
       .leftJoinAndSelect('packageDays.destination', 'dayDestination')
       .leftJoinAndSelect('packageDays.hotel', 'hotel')
       .leftJoinAndSelect('hotel.roomTypes', 'roomTypes')
-      .where("pkg.status = 'ACTIVE'");
+      .where("pkg.status NOT IN ('EXPIRED', 'CANCELLED')")
+      .andWhere('(pkg.toDatetimeUtc IS NULL OR pkg.toDatetimeUtc >= :now)', {
+        now: new Date(),
+      });
 
     if (params.destinationId) {
       qb.andWhere('pkg.destinationId = :destinationId', {
@@ -123,6 +127,7 @@ export class PackagesService {
     const pkg = await this.packageRepository.findOne({
       where: { id },
       relations: {
+        client: true,
         destination: true,
         packageDays: {
           destination: true,
@@ -162,8 +167,17 @@ export class PackagesService {
     if (updatePackageDto.destinationId !== undefined) {
       pkg.destinationId = updatePackageDto.destinationId;
     }
+    if (updatePackageDto.clientId !== undefined) {
+      pkg.clientId = updatePackageDto.clientId;
+    }
     if (updatePackageDto.durationDays !== undefined) {
       pkg.durationDays = updatePackageDto.durationDays;
+    }
+    if (updatePackageDto.adults !== undefined) {
+      pkg.adults = updatePackageDto.adults;
+    }
+    if (updatePackageDto.children !== undefined) {
+      pkg.children = updatePackageDto.children;
     }
     if (updatePackageDto.summary !== undefined) {
       pkg.summary = updatePackageDto.summary;
