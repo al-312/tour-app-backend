@@ -15,6 +15,7 @@ import { Destination } from '@/modules/destinations/entities/destination.entity'
 import { InquiryHotelSelection } from '@/modules/inquiries/entities/inquiry-hotel-selection.entity';
 
 import { createSampleInquiries } from './helpers/seed-inquiries.helper';
+import { createDestinationsAndHotels } from './helpers/seed-destinations.helper';
 import {
   clearDatabaseTables,
   createMasterUsersAndConsultants,
@@ -58,155 +59,23 @@ export class SeedService {
     const { superAdmin, admin, consultant2User } =
       await createMasterUsersAndConsultants(this);
 
-    // 2. Destinations
-    const dubai = await this.destinationRepository.save(
-      this.destinationRepository.create({
-        name: 'Dubai',
-        country: 'United Arab Emirates',
-        city: 'Dubai',
-        description:
-          'World-class skyscrapers, desert safaris, and luxury shopping.',
-        status: 'ACTIVE',
-      }),
-    );
+    // 2. Destinations & Hotels
+    const {
+      dubai,
+      paris,
+      bali,
+      singapore,
+      maldives,
+      atlantis,
+      burjAlArab,
+      leMeurice,
+      ritzCarlton,
+      marinaBaySands,
+      sonevaFushi,
+      deluxeOcean,
+    } = await createDestinationsAndHotels(this);
 
-    const paris = await this.destinationRepository.save(
-      this.destinationRepository.create({
-        name: 'Paris',
-        country: 'France',
-        city: 'Paris',
-        description:
-          'The City of Light known for the Eiffel Tower and fine dining.',
-        status: 'ACTIVE',
-      }),
-    );
-
-    const bali = await this.destinationRepository.save(
-      this.destinationRepository.create({
-        name: 'Bali',
-        country: 'Indonesia',
-        city: 'Denpasar',
-        description:
-          'Tropical beaches, ancient temples, and lush rice terraces.',
-        status: 'ACTIVE',
-      }),
-    );
-
-    // Hotels with individual Room Types
-    const atlantis = await this.hotelRepository.save(
-      this.hotelRepository.create({
-        name: 'Atlantis The Palm',
-        destinationId: dubai.id,
-        starRating: 5,
-        address: 'Crescent Rd, The Palm Jumeirah, Dubai',
-        status: 'ACTIVE',
-        roomTypes: [
-          this.roomTypeRepository.create({
-            name: 'Deluxe Ocean Room',
-            roomPrice: 350,
-            maxAdults: 2,
-            maxChildren: 1,
-            extraBedAvailable: true,
-            extraBedPrice: 80,
-            maxExtraBeds: 1,
-            status: 'ACTIVE',
-          }),
-          this.roomTypeRepository.create({
-            name: 'Imperial Family Suite',
-            roomPrice: 750,
-            maxAdults: 4,
-            maxChildren: 2,
-            extraBedAvailable: true,
-            extraBedPrice: 120,
-            maxExtraBeds: 2,
-            status: 'ACTIVE',
-          }),
-        ],
-      }),
-    );
-
-    const burjAlArab = await this.hotelRepository.save(
-      this.hotelRepository.create({
-        name: 'Burj Al Arab Jumeirah',
-        destinationId: dubai.id,
-        starRating: 5,
-        address: 'Jumeirah St, Dubai',
-        status: 'ACTIVE',
-        roomTypes: [
-          this.roomTypeRepository.create({
-            name: 'Deluxe Palm Suite',
-            roomPrice: 950,
-            maxAdults: 2,
-            maxChildren: 1,
-            extraBedAvailable: true,
-            extraBedPrice: 200,
-            maxExtraBeds: 1,
-            status: 'ACTIVE',
-          }),
-        ],
-      }),
-    );
-
-    const leMeurice = await this.hotelRepository.save(
-      this.hotelRepository.create({
-        name: 'Le Meurice',
-        destinationId: paris.id,
-        starRating: 5,
-        address: '228 Rue de Rivoli, Paris',
-        status: 'ACTIVE',
-        roomTypes: [
-          this.roomTypeRepository.create({
-            name: 'Superior Room',
-            roomPrice: 420,
-            maxAdults: 2,
-            maxChildren: 1,
-            extraBedAvailable: false,
-            extraBedPrice: 0,
-            maxExtraBeds: 0,
-            status: 'ACTIVE',
-          }),
-          this.roomTypeRepository.create({
-            name: 'Executive Suite',
-            roomPrice: 890,
-            maxAdults: 3,
-            maxChildren: 1,
-            extraBedAvailable: true,
-            extraBedPrice: 150,
-            maxExtraBeds: 1,
-            status: 'ACTIVE',
-          }),
-        ],
-      }),
-    );
-
-    await this.hotelRepository.save(
-      this.hotelRepository.create({
-        name: 'The Ritz-Carlton Bali',
-        destinationId: bali.id,
-        starRating: 5,
-        address: 'Jalan Raya Nusa Dua Selatan, Bali',
-        status: 'ACTIVE',
-        roomTypes: [
-          this.roomTypeRepository.create({
-            name: 'Ocean View Suite',
-            roomPrice: 280,
-            maxAdults: 2,
-            maxChildren: 1,
-            extraBedAvailable: true,
-            extraBedPrice: 60,
-            maxExtraBeds: 1,
-            status: 'ACTIVE',
-          }),
-        ],
-      }),
-    );
-
-    const deluxeOcean = atlantis.roomTypes[0];
-    if (!deluxeOcean) {
-      throw new Error('Missing room type deluxeOcean on seeded hotel');
-    }
-
-    // Clients
+    // 3. Clients
     const client1 = await this.clientRepository.save(
       this.clientRepository.create({
         consultantId: consultant2User.id,
@@ -227,14 +96,21 @@ export class SeedService {
       }),
     );
 
+    // 4. Packages & Inquiries
     await createSampleInquiries(this, {
       admin,
       consultant2User,
       dubai,
       paris,
+      bali,
+      singapore,
+      maldives,
       atlantis,
       burjAlArab,
       leMeurice,
+      ritzCarlton,
+      marinaBaySands,
+      sonevaFushi,
       deluxeOcean,
       client1,
       client2,

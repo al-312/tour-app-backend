@@ -34,6 +34,7 @@ export class CreatePackageDto {
     description: 'Main destination UUID',
   })
   @IsUUID()
+  @IsNotEmpty()
   destinationId!: string;
 
   @ApiPropertyOptional({

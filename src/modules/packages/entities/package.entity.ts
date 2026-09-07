@@ -21,7 +21,7 @@ export class Package {
   @Column({ type: 'varchar', length: 255 })
   packageName!: string;
 
-  @Column({ type: 'varchar', length: 255, default: 'Bangalore' })
+  @Column({ type: 'varchar', length: 255 })
   source!: string;
 
   @Column({ type: 'uuid', nullable: true })
