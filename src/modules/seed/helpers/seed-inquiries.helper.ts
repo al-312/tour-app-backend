@@ -12,9 +12,11 @@ export interface SampleSeedEntities {
   consultant2User: User;
   dubai: Destination;
   paris: Destination;
+  bali: Destination;
   atlantis: Hotel;
   burjAlArab: Hotel;
   leMeurice: Hotel;
+  ritzCarlton: Hotel;
   deluxeOcean: RoomType;
   client1: Client;
   client2: Client;
@@ -29,9 +31,11 @@ export async function createSampleInquiries(
     consultant2User,
     dubai,
     paris,
+    bali,
     atlantis,
     burjAlArab,
     leMeurice,
+    ritzCarlton,
     deluxeOcean,
     client1,
     client2,
@@ -102,6 +106,29 @@ export async function createSampleInquiries(
           destinationId: paris.id,
           hotelId: leMeurice.id,
           sortOrder: 2,
+        }),
+      ],
+    }),
+  );
+
+  await repos.packageRepository.save(
+    repos.packageRepository.create({
+      packageName: '6-Day Tropical Bali Resort & Villa Getaway',
+      source: 'Mumbai',
+      destinationId: bali.id,
+      durationDays: 6,
+      fromDatetimeUtc: new Date('2026-12-01T08:00:00Z'),
+      toDatetimeUtc: new Date('2026-12-07T20:00:00Z'),
+      summary: 'Tropical getaway in Bali with cliffside ocean view resort.',
+      startingPrice: 1450,
+      status: 'ACTIVE',
+      createdBy: admin.id,
+      packageDays: [
+        repos.packageDayRepository.create({
+          dayNumber: 1,
+          destinationId: bali.id,
+          hotelId: ritzCarlton.id,
+          sortOrder: 1,
         }),
       ],
     }),

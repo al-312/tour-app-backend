@@ -179,7 +179,7 @@ export class SeedService {
       }),
     );
 
-    await this.hotelRepository.save(
+    const ritzCarlton = await this.hotelRepository.save(
       this.hotelRepository.create({
         name: 'The Ritz-Carlton Bali',
         destinationId: bali.id,
@@ -232,9 +232,11 @@ export class SeedService {
       consultant2User,
       dubai,
       paris,
+      bali,
       atlantis,
       burjAlArab,
       leMeurice,
+      ritzCarlton,
       deluxeOcean,
       client1,
       client2,

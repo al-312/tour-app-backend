@@ -64,26 +64,41 @@ export class PackagesService {
     return this.findById(saved.id);
   }
 
-  async findAll(status?: string): Promise<Package[]> {
-    const whereCondition = status ? { status } : {};
-    return this.packageRepository.find({
-      where: whereCondition,
-      relations: {
-        client: true,
-        destination: true,
-        packageDays: {
-          destination: true,
-          hotel: {
-            roomTypes: true,
-          },
-        },
-      },
-      order: { createdAt: 'DESC' },
-    });
+  async findAll(
+    status?: string,
+    source?: string,
+    destinationId?: string,
+  ): Promise<Package[]> {
+    const qb = this.packageRepository
+      .createQueryBuilder('pkg')
+      .leftJoinAndSelect('pkg.client', 'client')
+      .leftJoinAndSelect('pkg.destination', 'destination')
+      .leftJoinAndSelect('pkg.packageDays', 'packageDays')
+      .leftJoinAndSelect('packageDays.destination', 'dayDestination')
+      .leftJoinAndSelect('packageDays.hotel', 'hotel')
+      .leftJoinAndSelect('hotel.roomTypes', 'roomTypes');
+
+    if (status) {
+      qb.andWhere('pkg.status = :status', { status });
+    }
+
+    if (source) {
+      qb.andWhere('LOWER(pkg.source) LIKE LOWER(:source)', {
+        source: `%${source}%`,
+      });
+    }
+
+    if (destinationId) {
+      qb.andWhere('pkg.destinationId = :destinationId', { destinationId });
+    }
+
+    qb.orderBy('pkg.createdAt', 'DESC');
+    return qb.getMany();
   }
 
   async search(params: {
     destinationId?: string;
+    destination?: string;
     source?: string;
     travelDate?: string;
     days?: number;
@@ -107,6 +122,14 @@ export class PackagesService {
       qb.andWhere('pkg.destinationId = :destinationId', {
         destinationId: params.destinationId,
       });
+    } else if (params.destination) {
+      qb.andWhere(
+        '(pkg.destinationId = :destId OR LOWER(destination.name) LIKE LOWER(:destName) OR LOWER(destination.city) LIKE LOWER(:destName) OR LOWER(destination.country) LIKE LOWER(:destName))',
+        {
+          destId: params.destination,
+          destName: `%${params.destination}%`,
+        },
+      );
     }
 
     if (params.source) {
@@ -115,8 +138,26 @@ export class PackagesService {
       });
     }
 
+    if (params.travelDate) {
+      const travelDate = new Date(params.travelDate);
+      if (!isNaN(travelDate.getTime())) {
+        qb.andWhere(
+          '(pkg.fromDatetimeUtc IS NULL OR pkg.fromDatetimeUtc <= :travelDate) AND (pkg.toDatetimeUtc IS NULL OR pkg.toDatetimeUtc >= :travelDate)',
+          { travelDate },
+        );
+      }
+    }
+
     if (params.days) {
       qb.andWhere('pkg.durationDays = :days', { days: params.days });
+    }
+
+    if (params.adults) {
+      qb.andWhere('pkg.adults >= :adults', { adults: params.adults });
+    }
+
+    if (params.children) {
+      qb.andWhere('pkg.children >= :children', { children: params.children });
     }
 
     qb.orderBy('pkg.createdAt', 'DESC');
@@ -165,6 +206,16 @@ export class PackagesService {
       pkg.source = updatePackageDto.source;
     }
     if (updatePackageDto.destinationId !== undefined) {
+      if (updatePackageDto.destinationId) {
+        const destination = await this.destinationRepository.findOne({
+          where: { id: updatePackageDto.destinationId },
+        });
+        if (!destination) {
+          throw new NotFoundException(
+            `Destination with ID ${updatePackageDto.destinationId} not found`,
+          );
+        }
+      }
       pkg.destinationId = updatePackageDto.destinationId;
     }
     if (updatePackageDto.clientId !== undefined) {

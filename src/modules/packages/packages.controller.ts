@@ -35,9 +35,20 @@ export class PackagesController {
   constructor(private readonly packagesService: PackagesService) {}
 
   @Get('search')
-  @ApiOperation({ summary: 'Consultant search packages' })
+  @ApiOperation({
+    summary:
+      'Consultant search packages by source, destination, and other filters',
+  })
+  @ApiQuery({ name: 'destinationId', required: false, type: String })
+  @ApiQuery({ name: 'destination', required: false, type: String })
+  @ApiQuery({ name: 'source', required: false, type: String })
+  @ApiQuery({ name: 'travelDate', required: false, type: String })
+  @ApiQuery({ name: 'days', required: false, type: String })
+  @ApiQuery({ name: 'adults', required: false, type: String })
+  @ApiQuery({ name: 'children', required: false, type: String })
   async search(
     @Query('destinationId') destinationId?: string,
+    @Query('destination') destination?: string,
     @Query('source') source?: string,
     @Query('travelDate') travelDate?: string,
     @Query('days') days?: string,
@@ -46,6 +57,7 @@ export class PackagesController {
   ): Promise<Package[]> {
     const params: {
       destinationId?: string;
+      destination?: string;
       source?: string;
       travelDate?: string;
       days?: number;
@@ -55,6 +67,9 @@ export class PackagesController {
 
     if (destinationId) {
       params.destinationId = destinationId;
+    }
+    if (destination) {
+      params.destination = destination;
     }
     if (source) {
       params.source = source;
@@ -78,8 +93,14 @@ export class PackagesController {
   @Get()
   @ApiOperation({ summary: 'Get all tour packages' })
   @ApiQuery({ name: 'status', required: false, type: String })
-  async findAll(@Query('status') status?: string): Promise<Package[]> {
-    return this.packagesService.findAll(status);
+  @ApiQuery({ name: 'source', required: false, type: String })
+  @ApiQuery({ name: 'destinationId', required: false, type: String })
+  async findAll(
+    @Query('status') status?: string,
+    @Query('source') source?: string,
+    @Query('destinationId') destinationId?: string,
+  ): Promise<Package[]> {
+    return this.packagesService.findAll(status, source, destinationId);
   }
 
   @Get(':id')
