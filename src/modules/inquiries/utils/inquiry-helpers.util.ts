@@ -46,7 +46,7 @@ export function buildPackageSnapshot(
     packageName: pkg.packageName,
     source: dto.source,
     destinationId: dto.destinationId,
-    destinationName: pkg.destination?.name ?? '',
+    destinationName: pkg.packageDays[0]?.destination?.name ?? '',
     days: dto.days,
     adults: dto.adults,
     children: dto.children ?? 0,
@@ -89,8 +89,7 @@ export async function resolveEffectiveSelections(
     if (roomType) {
       result.push({
         dayNumber: day.dayNumber,
-        destinationId:
-          day.destinationId ?? pkg.destinationId ?? fallbackDestinationId,
+        destinationId: day.destinationId ?? fallbackDestinationId,
         hotelId: day.hotelId,
         roomTypeId: roomType.id,
         nights: 1,

@@ -35,6 +35,9 @@ export async function clearDatabaseTables(
   await repos.selectionRepository.query('DELETE FROM inquiry_hotel_selections');
   await repos.inquiryRepository.query('DELETE FROM inquiries');
   await repos.packageDayRepository.query('DELETE FROM package_days');
+  await repos.packageRepository.query(
+    'ALTER TABLE packages DROP COLUMN IF EXISTS "destinationId" CASCADE; ALTER TABLE packages DROP COLUMN IF EXISTS "source" CASCADE;',
+  );
   await repos.packageRepository.query('DELETE FROM packages');
   await repos.roomTypeRepository.query('DELETE FROM room_types');
   await repos.hotelRepository.query('DELETE FROM hotels');

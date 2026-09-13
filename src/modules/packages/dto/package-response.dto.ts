@@ -35,15 +35,6 @@ export class PackageResponseDto {
   @ApiProperty({ example: '5-Day Dubai Luxury Escape' })
   packageName!: string;
 
-  @ApiProperty({ example: 'Bangalore' })
-  source!: string;
-
-  @ApiPropertyOptional({ example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d' })
-  destinationId!: string | null;
-
-  @ApiPropertyOptional({ type: DestinationResponseDto })
-  destination?: DestinationResponseDto | null;
-
   @ApiProperty({ example: 5 })
   durationDays!: number;
 
@@ -75,11 +66,6 @@ export class PackageResponseDto {
     const dto = new PackageResponseDto();
     dto.id = pkg.id;
     dto.packageName = pkg.packageName;
-    dto.source = pkg.source;
-    dto.destinationId = pkg.destinationId;
-    dto.destination = pkg.destination
-      ? DestinationResponseDto.fromEntity(pkg.destination)
-      : null;
     dto.durationDays = pkg.durationDays;
     dto.fromDatetimeUtc = pkg.fromDatetimeUtc;
     dto.toDatetimeUtc = pkg.toDatetimeUtc;

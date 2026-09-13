@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
-  BadRequestException,
 } from '@nestjs/common';
 
 import { UserRole } from '@/modules/roles/enums/role.enum';
@@ -50,7 +49,6 @@ export class InquiriesService {
     const pkg = await this.packageRepository.findOne({
       where: { id: dto.packageId },
       relations: {
-        destination: true,
         packageDays: {
           destination: true,
           hotel: true,
@@ -59,14 +57,6 @@ export class InquiriesService {
     });
     if (!pkg) {
       throw new NotFoundException('Package not found');
-    }
-
-    if (
-      pkg.destinationId &&
-      dto.destinationId &&
-      pkg.destinationId !== dto.destinationId
-    ) {
-      throw new BadRequestException('Package destination cannot be modified');
     }
 
     const client = await this.clientRepository.findOne({

@@ -24,19 +24,6 @@ export class CreatePackageDto {
   @IsNotEmpty()
   packageName!: string;
 
-  @ApiProperty({ example: 'Bangalore', description: 'Source city' })
-  @IsString()
-  @IsNotEmpty()
-  source!: string;
-
-  @ApiProperty({
-    example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
-    description: 'Main destination UUID',
-  })
-  @IsUUID()
-  @IsNotEmpty()
-  destinationId!: string;
-
   @ApiPropertyOptional({
     example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
     description: 'Client UUID',

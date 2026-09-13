@@ -93,14 +93,12 @@ export class PackagesController {
   @Get()
   @ApiOperation({ summary: 'Get all tour packages' })
   @ApiQuery({ name: 'status', required: false, type: String })
-  @ApiQuery({ name: 'source', required: false, type: String })
   @ApiQuery({ name: 'destinationId', required: false, type: String })
   async findAll(
     @Query('status') status?: string,
-    @Query('source') source?: string,
     @Query('destinationId') destinationId?: string,
   ): Promise<Package[]> {
-    return this.packagesService.findAll(status, source, destinationId);
+    return this.packagesService.findAll(status, destinationId);
   }
 
   @Get(':id')

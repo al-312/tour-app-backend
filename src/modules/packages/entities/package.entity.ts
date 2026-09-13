@@ -11,7 +11,6 @@ import {
 
 import type { Client } from '@/modules/clients/entities/client.entity';
 import type { PackageDay } from '@/modules/packages/entities/package-day.entity';
-import type { Destination } from '@/modules/destinations/entities/destination.entity';
 
 @Entity('packages')
 export class Package {
@@ -20,16 +19,6 @@ export class Package {
 
   @Column({ type: 'varchar', length: 255 })
   packageName!: string;
-
-  @Column({ type: 'varchar', length: 255 })
-  source!: string;
-
-  @Column({ type: 'uuid', nullable: true })
-  destinationId!: string | null;
-
-  @ManyToOne('Destination', { onDelete: 'SET NULL', nullable: true })
-  @JoinColumn({ name: 'destinationId' })
-  destination!: Destination | null;
 
   @Column({ type: 'uuid', nullable: true })
   clientId!: string | null;
