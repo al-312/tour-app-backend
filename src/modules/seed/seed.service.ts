@@ -14,6 +14,7 @@ import { Consultant } from '@/modules/consultants/entities/consultant.entity';
 import { Destination } from '@/modules/destinations/entities/destination.entity';
 import { InquiryHotelSelection } from '@/modules/inquiries/entities/inquiry-hotel-selection.entity';
 
+import { createSamplePackages } from './helpers/seed-packages.helper';
 import { createSampleInquiries } from './helpers/seed-inquiries.helper';
 import { createDestinationsAndHotels } from './helpers/seed-destinations.helper';
 import {
@@ -56,7 +57,7 @@ export class SeedService {
     await clearDatabaseTables(this);
 
     // 1. Users & Consultants
-    const { superAdmin, admin, consultant2User } =
+    const { superAdmin, admin, consultant1User, consultant2User } =
       await createMasterUsersAndConsultants(this);
 
     // 2. Destinations & Hotels
@@ -75,10 +76,27 @@ export class SeedService {
       deluxeOcean,
     } = await createDestinationsAndHotels(this);
 
-    // 3. Clients
+    // 3. Packages
+    const { dubaiPkg, parisPkg, baliPkg, singaporePkg, maldivesPkg } =
+      await createSamplePackages(this, {
+        admin,
+        dubai,
+        paris,
+        bali,
+        singapore,
+        maldives,
+        atlantis,
+        burjAlArab,
+        leMeurice,
+        ritzCarlton,
+        marinaBaySands,
+        sonevaFushi,
+      });
+
+    // 4. Clients (assigned across both consultants)
     const client1 = await this.clientRepository.save(
       this.clientRepository.create({
-        consultantId: consultant2User.id,
+        consultantId: consultant1User.id,
         name: 'John Smith',
         email: 'john.smith@example.com',
         phone: '+1-555-0122',
@@ -88,7 +106,7 @@ export class SeedService {
 
     const client2 = await this.clientRepository.save(
       this.clientRepository.create({
-        consultantId: consultant2User.id,
+        consultantId: consultant1User.id,
         name: 'Sarah Connor',
         email: 'sarah.connor@example.com',
         phone: '+1-555-0133',
@@ -96,24 +114,43 @@ export class SeedService {
       }),
     );
 
-    // 4. Packages & Inquiries
+    const client3 = await this.clientRepository.save(
+      this.clientRepository.create({
+        consultantId: consultant2User.id,
+        name: 'Michael Brown',
+        email: 'michael.brown@example.com',
+        phone: '+1-555-0144',
+        country: 'United Kingdom',
+      }),
+    );
+
+    const client4 = await this.clientRepository.save(
+      this.clientRepository.create({
+        consultantId: consultant2User.id,
+        name: 'Emily Davis',
+        email: 'emily.davis@example.com',
+        phone: '+1-555-0155',
+        country: 'Australia',
+      }),
+    );
+
+    // 5. Inquiries
     await createSampleInquiries(this, {
       admin,
+      consultant1User,
       consultant2User,
       dubai,
-      paris,
-      bali,
-      singapore,
-      maldives,
       atlantis,
-      burjAlArab,
-      leMeurice,
-      ritzCarlton,
-      marinaBaySands,
-      sonevaFushi,
       deluxeOcean,
       client1,
       client2,
+      client3,
+      client4,
+      dubaiPkg,
+      parisPkg,
+      baliPkg,
+      singaporePkg,
+      maldivesPkg,
     });
 
     await this.auditLogRepository.save(

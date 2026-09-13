@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
-  BadRequestException,
 } from '@nestjs/common';
 
 import { UserRole } from '@/modules/roles/enums/role.enum';
@@ -50,7 +49,6 @@ export class InquiriesService {
     const pkg = await this.packageRepository.findOne({
       where: { id: dto.packageId },
       relations: {
-        destination: true,
         packageDays: {
           destination: true,
           hotel: true,
@@ -59,14 +57,6 @@ export class InquiriesService {
     });
     if (!pkg) {
       throw new NotFoundException('Package not found');
-    }
-
-    if (
-      pkg.destinationId &&
-      dto.destinationId &&
-      pkg.destinationId !== dto.destinationId
-    ) {
-      throw new BadRequestException('Package destination cannot be modified');
     }
 
     const client = await this.clientRepository.findOne({
@@ -82,7 +72,7 @@ export class InquiriesService {
     const effectiveSelections = await resolveEffectiveSelections(
       dto.hotelSelections,
       pkg,
-      dto.destinationId,
+      dto.destinationId ?? '',
       this.roomTypeRepository,
     );
 
@@ -106,8 +96,8 @@ export class InquiriesService {
       clientId: client.id,
       packageId: pkg.id,
       packageSnapshot,
-      source: dto.source,
-      destinationId: dto.destinationId,
+      source: dto.source ?? null,
+      destinationId: dto.destinationId ?? null,
       travelDate: new Date(dto.travelDate),
       days: dto.days,
       adults: dto.adults,
@@ -144,9 +134,12 @@ export class InquiriesService {
       .leftJoinAndSelect('inquiry.consultant', 'consultant')
       .leftJoinAndSelect('inquiry.client', 'client')
       .leftJoinAndSelect('inquiry.package', 'package')
+      .leftJoinAndSelect('package.packageDays', 'packageDays')
+      .leftJoinAndSelect('packageDays.destination', 'pkgDayDest')
       .leftJoinAndSelect('inquiry.destination', 'destination')
       .leftJoinAndSelect('inquiry.hotelSelections', 'selections')
       .leftJoinAndSelect('selections.hotel', 'hotel')
+      .leftJoinAndSelect('hotel.destination', 'hotelDest')
       .leftJoinAndSelect('selections.roomType', 'roomType')
       .orderBy('inquiry.createdAt', 'DESC');
 
@@ -168,10 +161,16 @@ export class InquiriesService {
       relations: {
         consultant: true,
         client: true,
-        package: true,
+        package: {
+          packageDays: {
+            destination: true,
+          },
+        },
         destination: true,
         hotelSelections: {
-          hotel: true,
+          hotel: {
+            destination: true,
+          },
           roomType: true,
         },
       },

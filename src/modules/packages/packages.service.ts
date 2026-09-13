@@ -5,7 +5,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Package } from '@/modules/packages/entities/package.entity';
 import { PackageDay } from '@/modules/packages/entities/package-day.entity';
 import { CreatePackageDto } from '@/modules/packages/dto/create-package.dto';
-import { Destination } from '@/modules/destinations/entities/destination.entity';
 import { mapCreateDayInputsToEntities } from '@/modules/packages/utils/package-mapper.util';
 
 @Injectable()
@@ -15,27 +14,14 @@ export class PackagesService {
     private readonly packageRepository: Repository<Package>,
     @InjectRepository(PackageDay)
     private readonly packageDayRepository: Repository<PackageDay>,
-    @InjectRepository(Destination)
-    private readonly destinationRepository: Repository<Destination>,
   ) {}
 
   async create(
     createPackageDto: CreatePackageDto,
     createdBy?: string,
   ): Promise<Package> {
-    const destination = await this.destinationRepository.findOne({
-      where: { id: createPackageDto.destinationId },
-    });
-    if (!destination) {
-      throw new NotFoundException(
-        `Destination with ID ${createPackageDto.destinationId} not found`,
-      );
-    }
-
     const pkg = this.packageRepository.create({
       packageName: createPackageDto.packageName,
-      source: createPackageDto.source,
-      destinationId: createPackageDto.destinationId,
       clientId: createPackageDto.clientId ?? null,
       durationDays: createPackageDto.durationDays,
       adults: createPackageDto.adults ?? 2,
@@ -55,24 +41,16 @@ export class PackagesService {
       pkg.packageDays = mapCreateDayInputsToEntities(
         createPackageDto.packageDays,
       );
-      for (const day of pkg.packageDays) {
-        day.destinationId ??= createPackageDto.destinationId;
-      }
     }
 
     const saved = await this.packageRepository.save(pkg);
     return this.findById(saved.id);
   }
 
-  async findAll(
-    status?: string,
-    source?: string,
-    destinationId?: string,
-  ): Promise<Package[]> {
+  async findAll(status?: string, destinationId?: string): Promise<Package[]> {
     const qb = this.packageRepository
       .createQueryBuilder('pkg')
       .leftJoinAndSelect('pkg.client', 'client')
-      .leftJoinAndSelect('pkg.destination', 'destination')
       .leftJoinAndSelect('pkg.packageDays', 'packageDays')
       .leftJoinAndSelect('packageDays.destination', 'dayDestination')
       .leftJoinAndSelect('packageDays.hotel', 'hotel')
@@ -82,14 +60,8 @@ export class PackagesService {
       qb.andWhere('pkg.status = :status', { status });
     }
 
-    if (source) {
-      qb.andWhere('LOWER(pkg.source) LIKE LOWER(:source)', {
-        source: `%${source}%`,
-      });
-    }
-
     if (destinationId) {
-      qb.andWhere('pkg.destinationId = :destinationId', { destinationId });
+      qb.andWhere('dayDestination.id = :destinationId', { destinationId });
     }
 
     qb.orderBy('pkg.createdAt', 'DESC');
@@ -99,7 +71,6 @@ export class PackagesService {
   async search(params: {
     destinationId?: string;
     destination?: string;
-    source?: string;
     travelDate?: string;
     days?: number;
     adults?: number;
@@ -108,7 +79,6 @@ export class PackagesService {
     const qb = this.packageRepository
       .createQueryBuilder('pkg')
       .leftJoinAndSelect('pkg.client', 'client')
-      .leftJoinAndSelect('pkg.destination', 'destination')
       .leftJoinAndSelect('pkg.packageDays', 'packageDays')
       .leftJoinAndSelect('packageDays.destination', 'dayDestination')
       .leftJoinAndSelect('packageDays.hotel', 'hotel')
@@ -119,23 +89,17 @@ export class PackagesService {
       });
 
     if (params.destinationId) {
-      qb.andWhere('pkg.destinationId = :destinationId', {
+      qb.andWhere('dayDestination.id = :destinationId', {
         destinationId: params.destinationId,
       });
     } else if (params.destination) {
       qb.andWhere(
-        '(pkg.destinationId = :destId OR LOWER(destination.name) LIKE LOWER(:destName) OR LOWER(destination.city) LIKE LOWER(:destName) OR LOWER(destination.country) LIKE LOWER(:destName))',
+        '(dayDestination.id = :destId OR LOWER(dayDestination.name) LIKE LOWER(:destName) OR LOWER(dayDestination.city) LIKE LOWER(:destName) OR LOWER(dayDestination.country) LIKE LOWER(:destName))',
         {
           destId: params.destination,
           destName: `%${params.destination}%`,
         },
       );
-    }
-
-    if (params.source) {
-      qb.andWhere('LOWER(pkg.source) LIKE LOWER(:source)', {
-        source: `%${params.source}%`,
-      });
     }
 
     if (params.travelDate) {
@@ -169,7 +133,6 @@ export class PackagesService {
       where: { id },
       relations: {
         client: true,
-        destination: true,
         packageDays: {
           destination: true,
           hotel: {
@@ -201,22 +164,6 @@ export class PackagesService {
 
     if (updatePackageDto.packageName !== undefined) {
       pkg.packageName = updatePackageDto.packageName;
-    }
-    if (updatePackageDto.source !== undefined) {
-      pkg.source = updatePackageDto.source;
-    }
-    if (updatePackageDto.destinationId !== undefined) {
-      if (updatePackageDto.destinationId) {
-        const destination = await this.destinationRepository.findOne({
-          where: { id: updatePackageDto.destinationId },
-        });
-        if (!destination) {
-          throw new NotFoundException(
-            `Destination with ID ${updatePackageDto.destinationId} not found`,
-          );
-        }
-      }
-      pkg.destinationId = updatePackageDto.destinationId;
     }
     if (updatePackageDto.clientId !== undefined) {
       pkg.clientId = updatePackageDto.clientId;
@@ -257,9 +204,6 @@ export class PackagesService {
       pkg.packageDays = mapCreateDayInputsToEntities(
         updatePackageDto.packageDays,
       );
-      for (const day of pkg.packageDays) {
-        day.destinationId ??= pkg.destinationId;
-      }
     }
 
     await this.packageRepository.save(pkg);

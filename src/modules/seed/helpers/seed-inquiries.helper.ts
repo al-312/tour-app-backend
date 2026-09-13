@@ -4,197 +4,56 @@ import type { User } from '@/modules/users/entities/user.entity';
 import type { Hotel } from '@/modules/hotels/entities/hotel.entity';
 import type { Client } from '@/modules/clients/entities/client.entity';
 import type { SeedRepositories } from './seed-users-and-tables.helper';
+import type { Package } from '@/modules/packages/entities/package.entity';
 import type { RoomType } from '@/modules/hotels/entities/room-type.entity';
 import type { Destination } from '@/modules/destinations/entities/destination.entity';
 
-export interface SampleSeedEntities {
+export interface SampleInquiriesEntities {
   admin: User;
+  consultant1User: User;
   consultant2User: User;
   dubai: Destination;
-  paris: Destination;
-  bali: Destination;
-  singapore: Destination;
-  maldives: Destination;
   atlantis: Hotel;
-  burjAlArab: Hotel;
-  leMeurice: Hotel;
-  ritzCarlton: Hotel;
-  marinaBaySands: Hotel;
-  sonevaFushi: Hotel;
   deluxeOcean: RoomType;
   client1: Client;
   client2: Client;
+  client3: Client;
+  client4: Client;
+  dubaiPkg: Package;
+  parisPkg: Package;
+  baliPkg: Package;
+  singaporePkg: Package;
+  maldivesPkg: Package;
 }
 
 export async function createSampleInquiries(
   repos: SeedRepositories,
-  entities: SampleSeedEntities,
+  entities: SampleInquiriesEntities,
 ): Promise<void> {
   const {
     admin,
+    consultant1User,
     consultant2User,
     dubai,
-    paris,
-    bali,
-    singapore,
-    maldives,
     atlantis,
-    burjAlArab,
-    leMeurice,
-    ritzCarlton,
-    marinaBaySands,
-    sonevaFushi,
     deluxeOcean,
     client1,
     client2,
+    client3,
+    client4,
+    dubaiPkg,
+    parisPkg,
+    baliPkg,
+    singaporePkg,
+    maldivesPkg,
   } = entities;
 
-  const dubaiPkg = await repos.packageRepository.save(
-    repos.packageRepository.create({
-      packageName: '5-Day Dubai Luxury & Desert Escape',
-      source: 'Bangalore',
-      destinationId: dubai.id,
-      durationDays: 5,
-      fromDatetimeUtc: new Date('2026-10-01T06:00:00Z'),
-      toDatetimeUtc: new Date('2026-10-06T18:00:00Z'),
-      summary: 'Experience the ultimate Dubai luxury package.',
-      startingPrice: 1200,
-      status: 'ACTIVE',
-      createdBy: admin.id,
-      packageDays: [
-        repos.packageDayRepository.create({
-          dayNumber: 1,
-          destinationId: dubai.id,
-          hotelId: atlantis.id,
-          sortOrder: 1,
-        }),
-        repos.packageDayRepository.create({
-          dayNumber: 2,
-          destinationId: dubai.id,
-          hotelId: atlantis.id,
-          sortOrder: 2,
-        }),
-        repos.packageDayRepository.create({
-          dayNumber: 3,
-          destinationId: dubai.id,
-          hotelId: burjAlArab.id,
-          sortOrder: 3,
-        }),
-        repos.packageDayRepository.create({
-          dayNumber: 4,
-          destinationId: dubai.id,
-          hotelId: burjAlArab.id,
-          sortOrder: 4,
-        }),
-      ],
-    }),
-  );
-
-  const parisPkg = await repos.packageRepository.save(
-    repos.packageRepository.create({
-      packageName: '4-Day Romantic Paris Getaway',
-      source: 'Delhi',
-      destinationId: paris.id,
-      durationDays: 4,
-      fromDatetimeUtc: new Date('2026-11-10T08:00:00Z'),
-      toDatetimeUtc: new Date('2026-11-14T20:00:00Z'),
-      summary: 'Romantic getaway in Paris with palace hotel accommodation.',
-      startingPrice: 1680,
-      status: 'ACTIVE',
-      createdBy: admin.id,
-      packageDays: [
-        repos.packageDayRepository.create({
-          dayNumber: 1,
-          destinationId: paris.id,
-          hotelId: leMeurice.id,
-          sortOrder: 1,
-        }),
-        repos.packageDayRepository.create({
-          dayNumber: 2,
-          destinationId: paris.id,
-          hotelId: leMeurice.id,
-          sortOrder: 2,
-        }),
-      ],
-    }),
-  );
-
-  await repos.packageRepository.save(
-    repos.packageRepository.create({
-      packageName: '6-Day Tropical Bali Resort & Villa Getaway',
-      source: 'Mumbai',
-      destinationId: bali.id,
-      durationDays: 6,
-      fromDatetimeUtc: new Date('2026-12-01T08:00:00Z'),
-      toDatetimeUtc: new Date('2026-12-07T20:00:00Z'),
-      summary: 'Tropical getaway in Bali with cliffside ocean view resort.',
-      startingPrice: 1450,
-      status: 'ACTIVE',
-      createdBy: admin.id,
-      packageDays: [
-        repos.packageDayRepository.create({
-          dayNumber: 1,
-          destinationId: bali.id,
-          hotelId: ritzCarlton.id,
-          sortOrder: 1,
-        }),
-      ],
-    }),
-  );
-
-  await repos.packageRepository.save(
-    repos.packageRepository.create({
-      packageName: '5-Day Singapore City & Island Experience',
-      source: 'Chennai',
-      destinationId: singapore.id,
-      durationDays: 5,
-      fromDatetimeUtc: new Date('2026-10-15T08:00:00Z'),
-      toDatetimeUtc: new Date('2026-10-20T20:00:00Z'),
-      summary: 'Explore Singapore skyline and Marina Bay Sands rooftop pool.',
-      startingPrice: 1850,
-      status: 'ACTIVE',
-      createdBy: admin.id,
-      packageDays: [
-        repos.packageDayRepository.create({
-          dayNumber: 1,
-          destinationId: singapore.id,
-          hotelId: marinaBaySands.id,
-          sortOrder: 1,
-        }),
-      ],
-    }),
-  );
-
-  await repos.packageRepository.save(
-    repos.packageRepository.create({
-      packageName: '7-Day Maldives Luxury Overwater Haven',
-      source: 'Hyderabad',
-      destinationId: maldives.id,
-      durationDays: 7,
-      fromDatetimeUtc: new Date('2026-11-01T08:00:00Z'),
-      toDatetimeUtc: new Date('2026-11-08T20:00:00Z'),
-      summary: 'Exclusive overwater villa experience in pristine Baa Atoll.',
-      startingPrice: 3200,
-      status: 'ACTIVE',
-      createdBy: admin.id,
-      packageDays: [
-        repos.packageDayRepository.create({
-          dayNumber: 1,
-          destinationId: maldives.id,
-          hotelId: sonevaFushi.id,
-          sortOrder: 1,
-        }),
-      ],
-    }),
-  );
-
+  // Inquiry 1 for Consultant 1 (Sarah Jenkins) - Dubai
   const sampleInquiry1 = repos.inquiryRepository.create({
     inquiryNumber: 'INQ-2026-000001',
-    consultantId: consultant2User.id,
+    consultantId: consultant1User.id,
     clientId: client1.id,
     packageId: dubaiPkg.id,
-    source: 'Bangalore',
-    destinationId: dubai.id,
     travelDate: new Date('2026-10-01'),
     days: 5,
     adults: 2,
@@ -205,8 +64,6 @@ export async function createSampleInquiries(
     packageSnapshot: {
       packageId: dubaiPkg.id,
       packageName: dubaiPkg.packageName,
-      source: 'Bangalore',
-      destinationName: 'Dubai',
       travelDate: '2026-10-01',
       days: 5,
       adults: 2,
@@ -216,6 +73,7 @@ export async function createSampleInquiries(
       hotelSelections: [
         {
           dayNumber: 1,
+          destinationName: 'Dubai',
           hotelName: 'Atlantis The Palm',
           roomTypeName: 'Deluxe Ocean Room',
           numberOfRooms: 1,
@@ -245,13 +103,12 @@ export async function createSampleInquiries(
     }),
   );
 
+  // Inquiry 2 for Consultant 1 (Sarah Jenkins) - Paris
   const sampleInquiry2 = repos.inquiryRepository.create({
     inquiryNumber: 'INQ-2026-000002',
-    consultantId: consultant2User.id,
+    consultantId: consultant1User.id,
     clientId: client2.id,
     packageId: parisPkg.id,
-    source: 'Delhi',
-    destinationId: paris.id,
     travelDate: new Date('2026-11-10'),
     days: 4,
     adults: 2,
@@ -265,8 +122,6 @@ export async function createSampleInquiries(
     packageSnapshot: {
       packageId: parisPkg.id,
       packageName: parisPkg.packageName,
-      source: 'Delhi',
-      destinationName: 'Paris',
       travelDate: '2026-11-10',
       days: 4,
       adults: 2,
@@ -276,6 +131,7 @@ export async function createSampleInquiries(
       hotelSelections: [
         {
           dayNumber: 1,
+          destinationName: 'Paris',
           hotelName: 'Le Meurice',
           roomTypeName: 'Superior Room',
           numberOfRooms: 1,
@@ -288,4 +144,109 @@ export async function createSampleInquiries(
     },
   });
   await repos.inquiryRepository.save(sampleInquiry2);
+
+  // Inquiry 3 for Consultant 2 (Alex Morgan) - Bali
+  const sampleInquiry3 = repos.inquiryRepository.create({
+    inquiryNumber: 'INQ-2026-000003',
+    consultantId: consultant2User.id,
+    clientId: client3.id,
+    packageId: baliPkg.id,
+    travelDate: new Date('2026-12-01'),
+    days: 6,
+    adults: 2,
+    children: 2,
+    calculatedTotal: 2900,
+    status: InquiryStatus.SUBMITTED,
+    submittedAt: new Date('2026-09-01'),
+    packageSnapshot: {
+      packageId: baliPkg.id,
+      packageName: baliPkg.packageName,
+      destinationName: 'Bali',
+      travelDate: '2026-12-01',
+      days: 6,
+      adults: 2,
+      children: 2,
+      calculatedTotal: 2900,
+      clientName: client3.name,
+      itinerary: [
+        { dayNumber: 1, destinationName: 'Bali' },
+        { dayNumber: 2, destinationName: 'Bali' },
+        { dayNumber: 3, destinationName: 'Bali' },
+        { dayNumber: 4, destinationName: 'Bali' },
+        { dayNumber: 5, destinationName: 'Bali' },
+        { dayNumber: 6, destinationName: 'Bali' },
+      ],
+    },
+  });
+  await repos.inquiryRepository.save(sampleInquiry3);
+
+  // Inquiry 4 for Consultant 2 (Alex Morgan) - Singapore
+  const sampleInquiry4 = repos.inquiryRepository.create({
+    inquiryNumber: 'INQ-2026-000004',
+    consultantId: consultant2User.id,
+    clientId: client4.id,
+    packageId: singaporePkg.id,
+    travelDate: new Date('2026-10-15'),
+    days: 5,
+    adults: 2,
+    children: 0,
+    calculatedTotal: 1850,
+    status: InquiryStatus.SUBMITTED,
+    submittedAt: new Date('2026-09-05'),
+    packageSnapshot: {
+      packageId: singaporePkg.id,
+      packageName: singaporePkg.packageName,
+      destinationName: 'Singapore',
+      travelDate: '2026-10-15',
+      days: 5,
+      adults: 2,
+      children: 0,
+      calculatedTotal: 1850,
+      clientName: client4.name,
+      itinerary: [
+        { dayNumber: 1, destinationName: 'Singapore' },
+        { dayNumber: 2, destinationName: 'Singapore' },
+        { dayNumber: 3, destinationName: 'Singapore' },
+        { dayNumber: 4, destinationName: 'Singapore' },
+        { dayNumber: 5, destinationName: 'Singapore' },
+      ],
+    },
+  });
+  await repos.inquiryRepository.save(sampleInquiry4);
+
+  // Inquiry 5 for Consultant 1 (Sarah Jenkins) - Maldives
+  const sampleInquiry5 = repos.inquiryRepository.create({
+    inquiryNumber: 'INQ-2026-000005',
+    consultantId: consultant1User.id,
+    clientId: client1.id,
+    packageId: maldivesPkg.id,
+    travelDate: new Date('2026-11-01'),
+    days: 7,
+    adults: 2,
+    children: 0,
+    calculatedTotal: 3200,
+    status: InquiryStatus.SUBMITTED,
+    submittedAt: new Date('2026-09-10'),
+    packageSnapshot: {
+      packageId: maldivesPkg.id,
+      packageName: maldivesPkg.packageName,
+      destinationName: 'Maldives',
+      travelDate: '2026-11-01',
+      days: 7,
+      adults: 2,
+      children: 0,
+      calculatedTotal: 3200,
+      clientName: client1.name,
+      itinerary: [
+        { dayNumber: 1, destinationName: 'Maldives' },
+        { dayNumber: 2, destinationName: 'Maldives' },
+        { dayNumber: 3, destinationName: 'Maldives' },
+        { dayNumber: 4, destinationName: 'Maldives' },
+        { dayNumber: 5, destinationName: 'Maldives' },
+        { dayNumber: 6, destinationName: 'Maldives' },
+        { dayNumber: 7, destinationName: 'Maldives' },
+      ],
+    },
+  });
+  await repos.inquiryRepository.save(sampleInquiry5);
 }

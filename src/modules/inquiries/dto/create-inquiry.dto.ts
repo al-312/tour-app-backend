@@ -4,7 +4,6 @@ import {
   IsArray,
   IsDateString,
   IsInt,
-  IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
@@ -46,14 +45,15 @@ export class CreateInquiryDto {
   @IsUUID()
   clientId!: string;
 
-  @ApiProperty({ example: 'Bangalore' })
+  @ApiPropertyOptional({ example: 'Bangalore' })
   @IsString()
-  @IsNotEmpty()
-  source!: string;
+  @IsOptional()
+  source?: string;
 
-  @ApiProperty({ example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d' })
+  @ApiPropertyOptional({ example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d' })
   @IsUUID()
-  destinationId!: string;
+  @IsOptional()
+  destinationId?: string;
 
   @ApiProperty({ example: '2026-10-15' })
   @IsDateString()

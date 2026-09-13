@@ -21,65 +21,6 @@ export interface SeededDestinationsAndHotels {
 export async function createDestinationsAndHotels(
   repos: SeedRepositories,
 ): Promise<SeededDestinationsAndHotels> {
-  // Destinations / Locations (Sources & Destinations)
-  await repos.destinationRepository.save([
-    repos.destinationRepository.create({
-      name: 'Bangalore',
-      country: 'India',
-      city: 'Bangalore',
-      description:
-        'Silicon Valley of India known for tech parks, gardens, and pleasant climate.',
-      status: 'ACTIVE',
-    }),
-    repos.destinationRepository.create({
-      name: 'Delhi',
-      country: 'India',
-      city: 'New Delhi',
-      description:
-        'Capital city of India with rich historical heritage and vibrant markets.',
-      status: 'ACTIVE',
-    }),
-    repos.destinationRepository.create({
-      name: 'Mumbai',
-      country: 'India',
-      city: 'Mumbai',
-      description: 'Financial hub of India featuring iconic coastal landmarks.',
-      status: 'ACTIVE',
-    }),
-    repos.destinationRepository.create({
-      name: 'Chennai',
-      country: 'India',
-      city: 'Chennai',
-      description:
-        'Cultural gateway of South India known for temples and long coastal beaches.',
-      status: 'ACTIVE',
-    }),
-    repos.destinationRepository.create({
-      name: 'Hyderabad',
-      country: 'India',
-      city: 'Hyderabad',
-      description:
-        'City of Pearls known for historic monuments and world-class tech hubs.',
-      status: 'ACTIVE',
-    }),
-    repos.destinationRepository.create({
-      name: 'London',
-      country: 'United Kingdom',
-      city: 'London',
-      description:
-        'Global metropolis featuring royal palaces, museums, and theatre district.',
-      status: 'ACTIVE',
-    }),
-    repos.destinationRepository.create({
-      name: 'New York',
-      country: 'United States',
-      city: 'New York City',
-      description:
-        'Iconic city known for Times Square, Central Park, and Broadway.',
-      status: 'ACTIVE',
-    }),
-  ]);
-
   const dubai = await repos.destinationRepository.save(
     repos.destinationRepository.create({
       name: 'Dubai',
@@ -134,7 +75,7 @@ export async function createDestinationsAndHotels(
     }),
   );
 
-  // Hotels with individual Room Types
+  // Hotels with individual Room Types - At least 1 hotel in every location
   const atlantis = await repos.hotelRepository.save(
     repos.hotelRepository.create({
       name: 'Atlantis The Palm',
@@ -148,19 +89,15 @@ export async function createDestinationsAndHotels(
           roomPrice: 350,
           maxAdults: 2,
           maxChildren: 1,
-          extraBedAvailable: true,
           extraBedPrice: 80,
-          maxExtraBeds: 1,
           status: 'ACTIVE',
         }),
         repos.roomTypeRepository.create({
-          name: 'Imperial Family Suite',
-          roomPrice: 750,
+          name: 'Imperial Suite',
+          roomPrice: 850,
           maxAdults: 4,
           maxChildren: 2,
-          extraBedAvailable: true,
-          extraBedPrice: 120,
-          maxExtraBeds: 2,
+          extraBedPrice: 150,
           status: 'ACTIVE',
         }),
       ],
@@ -176,13 +113,11 @@ export async function createDestinationsAndHotels(
       status: 'ACTIVE',
       roomTypes: [
         repos.roomTypeRepository.create({
-          name: 'Deluxe Palm Suite',
-          roomPrice: 950,
+          name: 'Deluxe One-Bedroom Suite',
+          roomPrice: 1200,
           maxAdults: 2,
-          maxChildren: 1,
-          extraBedAvailable: true,
+          maxChildren: 2,
           extraBedPrice: 200,
-          maxExtraBeds: 1,
           status: 'ACTIVE',
         }),
       ],
@@ -194,7 +129,7 @@ export async function createDestinationsAndHotels(
       name: 'Le Meurice',
       destinationId: paris.id,
       starRating: 5,
-      address: '228 Rue de Rivoli, Paris',
+      address: '228 Rue de Rivoli, 75001 Paris',
       status: 'ACTIVE',
       roomTypes: [
         repos.roomTypeRepository.create({
@@ -202,19 +137,15 @@ export async function createDestinationsAndHotels(
           roomPrice: 420,
           maxAdults: 2,
           maxChildren: 1,
-          extraBedAvailable: false,
-          extraBedPrice: 0,
-          maxExtraBeds: 0,
+          extraBedPrice: 100,
           status: 'ACTIVE',
         }),
         repos.roomTypeRepository.create({
           name: 'Executive Suite',
-          roomPrice: 890,
+          roomPrice: 900,
           maxAdults: 3,
-          maxChildren: 1,
-          extraBedAvailable: true,
-          extraBedPrice: 150,
-          maxExtraBeds: 1,
+          maxChildren: 2,
+          extraBedPrice: 160,
           status: 'ACTIVE',
         }),
       ],
@@ -231,12 +162,18 @@ export async function createDestinationsAndHotels(
       roomTypes: [
         repos.roomTypeRepository.create({
           name: 'Ocean View Suite',
-          roomPrice: 280,
+          roomPrice: 290,
           maxAdults: 2,
-          maxChildren: 1,
-          extraBedAvailable: true,
+          maxChildren: 2,
           extraBedPrice: 60,
-          maxExtraBeds: 1,
+          status: 'ACTIVE',
+        }),
+        repos.roomTypeRepository.create({
+          name: 'Cliff Villa with Private Pool',
+          roomPrice: 650,
+          maxAdults: 4,
+          maxChildren: 2,
+          extraBedPrice: 120,
           status: 'ACTIVE',
         }),
       ],
@@ -245,20 +182,26 @@ export async function createDestinationsAndHotels(
 
   const marinaBaySands = await repos.hotelRepository.save(
     repos.hotelRepository.create({
-      name: 'Marina Bay Sands',
+      name: 'Marina Bay Sands Resort',
       destinationId: singapore.id,
       starRating: 5,
       address: '10 Bayfront Ave, Singapore',
       status: 'ACTIVE',
       roomTypes: [
         repos.roomTypeRepository.create({
-          name: 'Sands Premier Room',
+          name: 'Deluxe City View Room',
           roomPrice: 480,
           maxAdults: 2,
           maxChildren: 1,
-          extraBedAvailable: true,
-          extraBedPrice: 100,
-          maxExtraBeds: 1,
+          extraBedPrice: 110,
+          status: 'ACTIVE',
+        }),
+        repos.roomTypeRepository.create({
+          name: 'Sands Premier Suite',
+          roomPrice: 1100,
+          maxAdults: 3,
+          maxChildren: 2,
+          extraBedPrice: 180,
           status: 'ACTIVE',
         }),
       ],
@@ -274,23 +217,29 @@ export async function createDestinationsAndHotels(
       status: 'ACTIVE',
       roomTypes: [
         repos.roomTypeRepository.create({
-          name: 'Water Villa with Pool',
-          roomPrice: 1100,
-          maxAdults: 2,
+          name: 'Water Reserve with Slide',
+          roomPrice: 1400,
+          maxAdults: 3,
           maxChildren: 2,
-          extraBedAvailable: true,
-          extraBedPrice: 200,
-          maxExtraBeds: 2,
+          extraBedPrice: 250,
+          status: 'ACTIVE',
+        }),
+        repos.roomTypeRepository.create({
+          name: 'Crusoe Villa with Pool',
+          roomPrice: 850,
+          maxAdults: 2,
+          maxChildren: 1,
+          extraBedPrice: 150,
           status: 'ACTIVE',
         }),
       ],
     }),
   );
 
-  const deluxeOcean = atlantis.roomTypes[0];
-  if (!deluxeOcean) {
-    throw new Error('Missing room type deluxeOcean on seeded hotel');
-  }
+  // Extract the Deluxe Ocean RoomType for sample inquiry seed
+  const deluxeOcean = atlantis.roomTypes.find(
+    (rt) => rt.name === 'Deluxe Ocean Room',
+  ) as RoomType;
 
   return {
     dubai,

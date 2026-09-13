@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+} from 'class-validator';
 
 export class CreatePackageDayDto {
   @ApiProperty({ example: 1, description: 'Day number in sequence' })
@@ -7,13 +14,13 @@ export class CreatePackageDayDto {
   @Min(1)
   dayNumber!: number;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
     description: 'Destination UUID for this day',
   })
   @IsUUID()
-  @IsOptional()
-  destinationId?: string;
+  @IsNotEmpty()
+  destinationId!: string;
 
   @ApiPropertyOptional({
     example: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',

@@ -15,6 +15,7 @@ import type {
 export interface ProcessedSelection {
   dayNumber: number;
   destinationId: string;
+  destinationName?: string;
   hotelId: string;
   hotelName: string;
   roomTypeId: string;
@@ -44,9 +45,6 @@ export function buildPackageSnapshot(
   return {
     packageId: pkg.id,
     packageName: pkg.packageName,
-    source: dto.source,
-    destinationId: dto.destinationId,
-    destinationName: pkg.destination?.name ?? '',
     days: dto.days,
     adults: dto.adults,
     children: dto.children ?? 0,
@@ -89,8 +87,7 @@ export async function resolveEffectiveSelections(
     if (roomType) {
       result.push({
         dayNumber: day.dayNumber,
-        destinationId:
-          day.destinationId ?? pkg.destinationId ?? fallbackDestinationId,
+        destinationId: day.destinationId ?? fallbackDestinationId,
         hotelId: day.hotelId,
         roomTypeId: roomType.id,
         nights: 1,
@@ -115,6 +112,7 @@ export async function processHotelSelections(
   for (const selectionDto of selections) {
     const hotel = await hotelRepository.findOne({
       where: { id: selectionDto.hotelId },
+      relations: { destination: true },
     });
     if (!hotel) {
       throw new NotFoundException(
@@ -143,6 +141,7 @@ export async function processHotelSelections(
     processedSelections.push({
       dayNumber: selectionDto.dayNumber,
       destinationId: selectionDto.destinationId,
+      destinationName: hotel.destination?.name ?? '',
       hotelId: hotel.id,
       hotelName: hotel.name,
       roomTypeId: roomType.id,
