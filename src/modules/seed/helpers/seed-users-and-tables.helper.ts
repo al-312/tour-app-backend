@@ -51,6 +51,7 @@ export async function clearDatabaseTables(
 export interface MasterUsers {
   superAdmin: User;
   admin: User;
+  consultant1User: User;
   consultant2User: User;
 }
 
@@ -81,15 +82,15 @@ export async function createMasterUsersAndConsultants(
     }),
   );
 
-  const consultant1Password = await argon2.hash('TempPass123!');
-  await repos.userRepository.save(
+  const consultant1Password = await argon2.hash('Consultant123!');
+  const consultant1User = await repos.userRepository.save(
     repos.userRepository.create({
       name: 'Sarah Jenkins',
       email: 'consultant1@tourapp.com',
       password: consultant1Password,
       role: UserRole.CONSULTANT,
       status: 'ACTIVE',
-      mustChangePassword: true,
+      mustChangePassword: false,
       phone: '+1-555-0199',
       companyName: 'AuraTours Executive',
     }),
@@ -126,5 +127,5 @@ export async function createMasterUsersAndConsultants(
     }),
   ]);
 
-  return { superAdmin, admin, consultant2User };
+  return { superAdmin, admin, consultant1User, consultant2User };
 }

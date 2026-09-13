@@ -134,9 +134,12 @@ export class InquiriesService {
       .leftJoinAndSelect('inquiry.consultant', 'consultant')
       .leftJoinAndSelect('inquiry.client', 'client')
       .leftJoinAndSelect('inquiry.package', 'package')
+      .leftJoinAndSelect('package.packageDays', 'packageDays')
+      .leftJoinAndSelect('packageDays.destination', 'pkgDayDest')
       .leftJoinAndSelect('inquiry.destination', 'destination')
       .leftJoinAndSelect('inquiry.hotelSelections', 'selections')
       .leftJoinAndSelect('selections.hotel', 'hotel')
+      .leftJoinAndSelect('hotel.destination', 'hotelDest')
       .leftJoinAndSelect('selections.roomType', 'roomType')
       .orderBy('inquiry.createdAt', 'DESC');
 
@@ -158,10 +161,16 @@ export class InquiriesService {
       relations: {
         consultant: true,
         client: true,
-        package: true,
+        package: {
+          packageDays: {
+            destination: true,
+          },
+        },
         destination: true,
         hotelSelections: {
-          hotel: true,
+          hotel: {
+            destination: true,
+          },
           roomType: true,
         },
       },
