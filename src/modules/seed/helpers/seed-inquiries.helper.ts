@@ -210,8 +210,6 @@ export async function createSampleInquiries(
     consultantId: consultant2User.id,
     clientId: client1.id,
     packageId: dubaiPkg.id,
-    source: 'Bangalore',
-    destinationId: dubai.id,
     travelDate: new Date('2026-10-01'),
     days: 5,
     adults: 2,
@@ -222,8 +220,6 @@ export async function createSampleInquiries(
     packageSnapshot: {
       packageId: dubaiPkg.id,
       packageName: dubaiPkg.packageName,
-      source: 'Bangalore',
-      destinationName: 'Dubai',
       travelDate: '2026-10-01',
       days: 5,
       adults: 2,
@@ -233,6 +229,7 @@ export async function createSampleInquiries(
       hotelSelections: [
         {
           dayNumber: 1,
+          destinationName: 'Dubai',
           hotelName: 'Atlantis The Palm',
           roomTypeName: 'Deluxe Ocean Room',
           numberOfRooms: 1,
@@ -267,8 +264,6 @@ export async function createSampleInquiries(
     consultantId: consultant2User.id,
     clientId: client2.id,
     packageId: parisPkg.id,
-    source: 'Delhi',
-    destinationId: paris.id,
     travelDate: new Date('2026-11-10'),
     days: 4,
     adults: 2,
@@ -282,8 +277,6 @@ export async function createSampleInquiries(
     packageSnapshot: {
       packageId: parisPkg.id,
       packageName: parisPkg.packageName,
-      source: 'Delhi',
-      destinationName: 'Paris',
       travelDate: '2026-11-10',
       days: 4,
       adults: 2,
@@ -293,6 +286,7 @@ export async function createSampleInquiries(
       hotelSelections: [
         {
           dayNumber: 1,
+          destinationName: 'Paris',
           hotelName: 'Le Meurice',
           roomTypeName: 'Superior Room',
           numberOfRooms: 1,

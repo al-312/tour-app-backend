@@ -72,7 +72,7 @@ export class InquiriesService {
     const effectiveSelections = await resolveEffectiveSelections(
       dto.hotelSelections,
       pkg,
-      dto.destinationId,
+      dto.destinationId ?? '',
       this.roomTypeRepository,
     );
 
@@ -96,8 +96,8 @@ export class InquiriesService {
       clientId: client.id,
       packageId: pkg.id,
       packageSnapshot,
-      source: dto.source,
-      destinationId: dto.destinationId,
+      source: dto.source ?? null,
+      destinationId: dto.destinationId ?? null,
       travelDate: new Date(dto.travelDate),
       days: dto.days,
       adults: dto.adults,

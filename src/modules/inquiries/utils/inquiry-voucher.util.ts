@@ -2,6 +2,7 @@ import type { Inquiry } from '../entities/inquiry.entity';
 
 export interface HotelSelectionSnapshot {
   dayNumber: number;
+  destinationName?: string;
   hotelName: string;
   roomTypeName: string;
   numberOfRooms: number;
@@ -35,6 +36,7 @@ export function generateInquiryVoucherHtml(inquiry: Inquiry): string {
       (sel: HotelSelectionSnapshot) => `
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">Day ${String(sel.dayNumber)}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${sel.destinationName ?? 'N/A'}</td>
       <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>${sel.hotelName}</strong></td>
       <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${sel.roomTypeName}</td>
       <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">${String(sel.numberOfRooms)} Room(s) ${sel.numberOfExtraBeds > 0 ? `+ ${String(sel.numberOfExtraBeds)} Extra Bed` : ''}</td>
@@ -53,7 +55,6 @@ export function generateInquiryVoucherHtml(inquiry: Inquiry): string {
   const clientPhone = inquiry.client.phone ?? 'N/A';
   const clientCountry = inquiry.client.country ?? 'N/A';
   const pkgName = inquiry.package.packageName;
-  const destName = inquiry.destination.name;
 
   return `
     <!DOCTYPE html>
@@ -103,8 +104,6 @@ export function generateInquiryVoucherHtml(inquiry: Inquiry): string {
           <div class="card">
             <h3>Package & Travel Details</h3>
             <p><strong>Package:</strong> ${pkgName}</p>
-            <p><strong>Source:</strong> ${inquiry.source}</p>
-            <p><strong>Destination:</strong> ${destName}</p>
             <p><strong>Travel Date:</strong> ${formattedTravelDate}</p>
             <p><strong>Guests:</strong> ${String(inquiry.adults)} Adults, ${String(inquiry.children)} Children</p>
           </div>
@@ -115,6 +114,7 @@ export function generateInquiryVoucherHtml(inquiry: Inquiry): string {
           <thead>
             <tr>
               <th>Day</th>
+              <th>Destination</th>
               <th>Hotel</th>
               <th>Room Type</th>
               <th style="text-align: center;">Allocation</th>
@@ -122,7 +122,7 @@ export function generateInquiryVoucherHtml(inquiry: Inquiry): string {
             </tr>
           </thead>
           <tbody>
-            ${hotelRows !== '' ? hotelRows : '<tr><td colspan="5">No hotel customization</td></tr>'}
+            ${hotelRows !== '' ? hotelRows : '<tr><td colspan="6">No hotel customization</td></tr>'}
           </tbody>
         </table>
 

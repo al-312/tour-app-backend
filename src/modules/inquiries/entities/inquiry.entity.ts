@@ -56,15 +56,15 @@ export class Inquiry {
   @Column({ type: 'jsonb', nullable: true })
   packageSnapshot!: Record<string, unknown> | null;
 
-  @Column({ type: 'varchar', length: 255 })
-  source!: string;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  source?: string | null;
 
-  @Column({ type: 'uuid' })
-  destinationId!: string;
+  @Column({ type: 'uuid', nullable: true })
+  destinationId?: string | null;
 
-  @ManyToOne('Destination', { onDelete: 'RESTRICT' })
+  @ManyToOne('Destination', { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'destinationId' })
-  destination!: Destination;
+  destination?: Destination | null;
 
   @Column({ type: 'date' })
   travelDate!: Date;
